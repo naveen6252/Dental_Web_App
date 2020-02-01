@@ -102,7 +102,7 @@ class InvoiceCreateView(LoginRequiredMixin, CreateView):
 
 class ServiceCreateView(LoginRequiredMixin, CreateView):
     model = Service
-    fields = ['treatment', 'tooth', 'laboratory_name', 'amount']
+    fields = ['treatment', 'tooth', 'laboratory_name', 'amount', 'description']
 
     def form_valid(self, form):
         invoice = Invoice.objects.get(id=self.kwargs.get('inv_id'))
@@ -112,7 +112,7 @@ class ServiceCreateView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         invoice = Invoice.objects.get(id=self.kwargs.get('inv_id'))
         context = super(ServiceCreateView, self).get_context_data(**kwargs)
-        context['patient'] = invoice.patient
+        context['invoice'] = invoice
         context['title'] = 'Patient Registration'
         return context
 
@@ -207,6 +207,22 @@ class InvoiceDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(InvoiceDetailView, self).get_context_data(**kwargs)
         context['title'] = 'Invoice'
-        context['sub_total'] = context['object'].service_set.aggregate(Sum('amount'))['amount__sum']
-        context['balance'] = context['object'].deposit - context['sub_total']
+        context['sub_total'] = self.get_object().service_set.aggregate(Sum('amount'))['amount__sum']
+        context['balance'] = self.get_object().deposit - context['sub_total']
+        return context
+
+
+class InvoiceSlipView(LoginRequiredMixin, DetailView):
+    model = Patient
+    template_name = 'patient_registration/invoice_slip.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(InvoiceSlipView, self).get_context_data(**kwargs)
+        patient = self.get_object()
+        context['title'] = 'Invoice'
+        context['amount_total'] = Service.objects.filter(
+            invoice__patient=patient).aggregate(Sum('amount'))['amount__sum']
+        context['deposit_total'] = Invoice.objects.filter(patient=patient).aggregate(Sum('deposit'))[
+            'deposit__sum']
+        context['balance'] = context['deposit_total'] - context['amount_total']
         return context

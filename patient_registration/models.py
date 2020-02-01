@@ -48,7 +48,7 @@ class Invoice(models.Model):
         return str(self.id)
 
     def get_absolute_url(self):
-        return reverse('patient-registration-patients')
+        return reverse('patient-registration-view-slip', kwargs={'pk': self.patient.id})
 
 
 class Service(models.Model):

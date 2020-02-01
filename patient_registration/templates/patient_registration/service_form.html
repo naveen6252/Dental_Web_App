@@ -4,7 +4,7 @@
     <div class="block-header">
         <div class="row">
             <div class="col-lg-7 col-md-6 col-sm-12">
-                <h2>Add more Service for {{ patient.name }}</h2>
+                <h2>Add more Treatment for {{ invoice.patient.name }}</h2>
             </div>
             <div class="col-lg-5 col-md-6 col-sm-12">
                 <button class="btn btn-primary btn-icon float-right right_icon_toggle_btn" type="button"><i
@@ -17,16 +17,16 @@
                 {% csrf_token %}
                 <div class="body">
                     {{ form|crispy }}
-                    <button class="btn btn-primary btn-block" type="submit">Add this Service</button>
+                    <button class="btn btn-primary btn-block" type="submit">Add this treatment</button>
                     <div class="row">
                         <div class="col-md-6">
                             <a class="btn btn-info btn-block"
-                               href="{% url 'patient-registration-add-appointment' patient.patient_id %}">Take
+                               href="{% url 'patient-registration-add-appointment' invoice.patient.patient_id %}">Take
                                 Appointment</a>
                         </div>
                         <div class="col-md-6">
-                            <a class="btn btn-success btn-block" href="{% url 'patient-registration-home' %}">No more
-                                service, Print
+                            <a class="btn btn-success btn-block" href="{% url 'patient-registration-view-invoice' invoice.id %}">No more
+                                treatment, Print
                                 Invoice</a>
                         </div>
                     </div>

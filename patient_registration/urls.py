@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 from .views import PatientCreateView, AppointmentCreateView, PatientListView, PatientDeleteView, \
     ServiceCreateView, DoctorCreateView, DoctorListView, DoctorDeleteView, DoctorUpdateView, InvoiceCreateView, \
-    AppointmentUpdateView, InvoiceDetailView
+    AppointmentUpdateView, InvoiceDetailView, InvoiceSlipView
 
 urlpatterns = [
     path('', views.home, name='patient-registration-home'),
@@ -11,6 +11,7 @@ urlpatterns = [
     path('patient/', PatientListView.as_view(), name='patient-registration-patients'),
     path('doctor/', DoctorListView.as_view(), name='patient-registration-doctors'),
     path('patient/<int:pk>/delete/', PatientDeleteView.as_view(), name='patient-registration-delete-patient'),
+    path('patient/<int:pk>/invoice/', InvoiceSlipView.as_view(), name='patient-registration-view-slip'),
     path('doctor/<int:pk>/delete/', DoctorDeleteView.as_view(), name='patient-registration-delete-doctor'),
     path('doctor/<int:pk>/update/', DoctorUpdateView.as_view(), name='patient-registration-update-doctor'),
     path('invoice/<int:p_id>/new/', InvoiceCreateView.as_view(), name='patient-registration-add-invoice'),
