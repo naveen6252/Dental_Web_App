@@ -1,15 +1,101 @@
 {% extends "patient_registration/base.html" %}
-
+{% load static %}
 {% block content %}
-    <div class="block-header">
-        <div class="row">
-            <div class="col-lg-7 col-md-6 col-sm-12">
-                <h2>Appointments</h2>
+    <div class="body_scroll">
+        <div class="block-header">
+            <div class="row">
+                <div class="col-lg-7 col-md-6 col-sm-12">
+                    <h2>Appointments for {{ doctor.name }}</h2>
+                </div>
+                <div class="col-lg-5 col-md-6 col-sm-12">
+                    <button class="btn btn-primary btn-icon float-right right_icon_toggle_btn" type="button"><i
+                            class="zmdi zmdi-arrow-right"></i></button>
+                </div>
             </div>
-            <div class="col-lg-5 col-md-6 col-sm-12">
-                <button class="btn btn-primary btn-icon float-right right_icon_toggle_btn" type="button"><i
-                        class="zmdi zmdi-arrow-right"></i></button>
+        </div>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="card">
+                    <div class="body">
+                        {% if appointments|length %}
+                            <div id="calendar"></div>
+                        {% else %}
+                            <h3 class="text-warning">Sorry, There are currently no appointment
+                                for {{ doctor.name }}</h3>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Add Direct Event popup -->
+    <div class="modal fade" id="addDirectEvent" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Add Appointment</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Patient ID</label>
+                                <input class="form-control" name="event-name" type="text"/>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Datetime</label>
+                                <input class="form-control datetimepicker" name="event-name" type="text"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn save-btn btn-success">Save</button>
+                    <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Event Edit Modal popup -->
+    <div class="modal fade" id="eventEditModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Edit Appointment</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Patient Name</label>
+                                <input class="form-control" name="event-name" type="text"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn mr-auto delete-btn btn-danger">Delete</button>
+                    <button class="btn save-btn btn-success">Save</button>
+                    <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var event_data =
+        {{ appointments|safe }}
+    </script>
 {% endblock content %}
+
+{% block initial_script %}
+    <script src="{% static 'patient_registration/js/pages/calendar/calendar.js' %}"></script>
+    <script src="{% static 'patient_registration/plugins/momentjs/moment.js' %}"></script>
+    <script src="{% static 'patient_registration/plugins/bootstrap-material-datetimepicker/js/bootstrap-material-datetimepicker.js' %}"></script>
+{% endblock initial_script %}
+
+{% block final_script %}
+    <script src="{% static 'patient_registration/bundles/fullcalendarscripts.bundle.js' %}"></script>
+{% endblock final_script %}

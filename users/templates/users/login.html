@@ -1,4 +1,5 @@
 {% load static %}
+{% load crispy_forms_tags %}
 <!doctype html>
 <html class="no-js " lang="en">
 <head>
@@ -21,7 +22,7 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-4 col-sm-12">
-                {% load crispy_forms_tags %}
+
                 <form class="card auth_form" method="POST">
                     {% csrf_token %}
                     <div class="header">
