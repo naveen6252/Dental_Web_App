@@ -24,7 +24,7 @@ SECRET_KEY = '&3(mae)02yds-wdw10%54))&q@hd7#yaf%)#q5nf4y)-h_s7$='
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['harbor-dental.herokuapp.com']
 
 # Application definition
 
