@@ -192,7 +192,8 @@ def appointments(request, doc_id):
         appointments_array.append(
             {'title': str(appointment.patient.patient_id) + '-' + appointment.patient.name,
              'start': start.astimezone().strftime('%Y-%m-%dT%H:%M:%S'),
-             'end': end.astimezone().strftime('%Y-%m-%dT%H:%M:%S'), 'allDay': False}
+             'end': end.astimezone().strftime('%Y-%m-%dT%H:%M:%S'),
+             'note': appointment.note, 'appointment_id': appointment.id, 'allDay': False}
         )
 
     all_appointments = json.dumps(appointments_array)

@@ -28,65 +28,34 @@
             </div>
         </div>
     </div>
-
-    <!-- Add Direct Event popup -->
-    <div class="modal fade" id="addDirectEvent" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Add Appointment</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Patient ID</label>
-                                <input class="form-control" name="event-name" type="text"/>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Datetime</label>
-                                <input class="form-control datetimepicker" name="event-name" type="text"/>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn save-btn btn-success">Save</button>
-                    <button class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
     <!-- Event Edit Modal popup -->
-    <div class="modal fade" id="eventEditModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
+    <div class="modal fade" id="eventViewModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Edit Appointment</h4>
+                    <h4 class="modal-title">View Appointment</h4>
                 </div>
                 <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Patient Name</label>
-                                <input class="form-control" name="event-name" type="text"/>
-                            </div>
-                        </div>
+                    <div class="e_list">
+                        <h5 class="e_name"><span id='patient'>Patient</span>
+                            <span class="badge badge-primary float-right" id="time">2 Jan 2020</span>
+                        </h5>
+                        <blockquote>
+                            <p class="blockquote blockquote-primary">
+                                <span id="note"></span>
+                            </p>
+                        </blockquote>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn mr-auto delete-btn btn-danger">Delete</button>
-                    <button class="btn save-btn btn-success">Save</button>
-                    <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button class="btn edit-btn btn-success">Edit Note</button>
+                    <button class="btn btn-default" data-dismiss="modal">Ok</button>
                 </div>
             </div>
         </div>
     </div>
     <script>
-        var event_data =
-        {{ appointments|safe }}
+        let event_data = {{ appointments|safe }};
     </script>
 {% endblock content %}
 
