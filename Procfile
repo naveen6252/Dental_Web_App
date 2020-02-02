@@ -1,0 +1,1 @@
+web: gunicorn Dental_Web_App.wsgi
