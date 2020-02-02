@@ -1,9 +1,8 @@
 {% extends "patient_registration/base.html" %}
 {% load crispy_forms_tags %}
 {% block content %}
-    <div class="block-header">
-        <div class="row">
-            <form method="POST">
+    <div class="row">
+        <form method="POST">
             {% csrf_token %}
             <fieldset class="form-group">
                 <legend class="border-bottom mb-4">Delete Patient Record</legend>
@@ -14,6 +13,5 @@
                 <a class="btn btn-outline-secondary" href="{% url 'patient-registration-doctors' %}">Cancel</a>
             </div>
         </form>
-        </div>
     </div>
 {% endblock content %}

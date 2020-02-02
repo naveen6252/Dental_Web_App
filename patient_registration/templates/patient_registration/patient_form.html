@@ -1,26 +1,18 @@
 {% extends "patient_registration/base.html" %}
 {% load crispy_forms_tags %}
 {% block content %}
-    <div class="block-header">
-        <div class="row">
-            <div class="col-lg-7 col-md-6 col-sm-12">
-                <h2>Add Patient</h2>
-            </div>
-            <div class="col-lg-5 col-md-6 col-sm-12">
-                <button class="btn btn-primary btn-icon float-right right_icon_toggle_btn" type="button"><i
-                        class="zmdi zmdi-arrow-right"></i></button>
-            </div>
+    <div class="row">
+        <div class="col-lg-7 col-md-6 col-sm-12">
+            <h2>Add Patient</h2>
         </div>
-        <div class="row">
-            <div class="col-md-1"></div>
-            <form class="card auth_form col-md-10" method="POST">
-                {% csrf_token %}
-                <div class="body">
-                    {{ form|crispy }}
-                    <button class="btn btn-primary btn-block" type="submit">Submit
-                    </button>
-                </div>
-            </form>
-        </div>
+        <div class="col-md-1"></div>
+        <form class="card auth_form col-md-10" method="POST">
+            {% csrf_token %}
+            <div class="body">
+                {{ form|crispy }}
+                <button class="btn btn-primary btn-block" type="submit">Submit
+                </button>
+            </div>
+        </form>
     </div>
 {% endblock content %}

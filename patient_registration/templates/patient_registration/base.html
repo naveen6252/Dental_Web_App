@@ -103,7 +103,8 @@
                     {% else %}
                 <li>
             {% endif %}
-            <a href="{% url 'patient-registration-doctors' %}"><i class="zmdi zmdi-assignment-account"></i><span>Doctors</span></a>
+            <a href="{% url 'patient-registration-doctors' %}"><i
+                    class="zmdi zmdi-assignment-account"></i><span>Doctors</span></a>
             </li>
         </ul>
     </div>
@@ -186,8 +187,16 @@
 <!-- Main Content -->
 
 <section class="content">
-    {% block content %}
-    {% endblock content %}
+    <div class="block-header">
+        <div class="row">
+            <div class="col-lg-7 col-md-6 col-sm-12">
+                <button class="btn btn-primary btn-icon mobile_menu" type="button"><i
+                        class="zmdi zmdi-sort-amount-desc"></i></button>
+            </div>
+        </div>
+        {% block content %}
+        {% endblock content %}
+    </div>
 </section>
 
 

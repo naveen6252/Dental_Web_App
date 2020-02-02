@@ -1,54 +1,46 @@
 {% extends "patient_registration/base.html" %}
 {% load static %}
 {% block content %}
-    <div class="block-header">
-        <div class="row">
-            <div class="col-lg-7 col-md-6 col-sm-12">
-                <h2>Doctor List</h2>
-            </div>
-            <div class="col-lg-5 col-md-6 col-sm-12">
-                <button class="btn btn-primary btn-icon float-right right_icon_toggle_btn" type="button"><i
-                        class="zmdi zmdi-arrow-right"></i></button>
-            </div>
+    <div class="body">
+        <div class="col-lg-7 col-md-6 col-sm-12">
+            <h2>Doctor List</h2>
         </div>
-        <div class="body">
-            <div class="table-responsive">
-                <table class="table table-bordered table-striped table-hover js-basic-example dataTable">
-                    <thead>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover js-basic-example dataTable">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Designation</th>
+                    <th>Appointment</th>
+                    <th>Update</th>
+                    <th>Delete</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for doctor in object_list %}
                     <tr>
-                        <th>#</th>
-                        <th>Name</th>
-                        <th>Phone</th>
-                        <th>Designation</th>
-                        <th>Appointment</th>
-                        <th>Update</th>
-                        <th>Delete</th>
+                        <td>{{ doctor.id }}</td>
+                        <td>{{ doctor.name }}</td>
+                        <td>{{ doctor.contact }}</td>
+                        <td>{{ doctor.designation }}</td>
+                        <td><a class="btn btn-block btn-primary" title="View Appointment"
+                               href="{% url 'patient-registration-view-appointment' doctor.id %}">
+                            <i class="zmdi zmdi-view-quilt"></i>
+                        </a></td>
+                        <td><a class="btn btn-block btn-primary" title="Update doctor record"
+                               href="{% url 'patient-registration-update-doctor' doctor.id %}">
+                            <i class="zmdi zmdi-comment-edit"></i>
+                        </a></td>
+                        <td><a class="btn btn-block btn-danger" title="Delete doctor record"
+                               href="{% url 'patient-registration-delete-doctor' doctor.id %}">
+                            <i class="zmdi zmdi-delete"></i>
+                        </a></td>
                     </tr>
-                    </thead>
-                    <tbody>
-                    {% for doctor in object_list %}
-                        <tr>
-                            <td>{{ doctor.id }}</td>
-                            <td>{{ doctor.name }}</td>
-                            <td>{{ doctor.contact }}</td>
-                            <td>{{ doctor.designation }}</td>
-                            <td><a class="btn btn-block btn-primary" title="View Appointment"
-                                   href="{% url 'patient-registration-view-appointment' doctor.id %}">
-                                <i class="zmdi zmdi-view-quilt"></i>
-                            </a></td>
-                            <td><a class="btn btn-block btn-primary" title="Update doctor record"
-                                   href="{% url 'patient-registration-update-doctor' doctor.id %}">
-                                <i class="zmdi zmdi-comment-edit"></i>
-                            </a></td>
-                            <td><a class="btn btn-block btn-danger" title="Delete doctor record"
-                                   href="{% url 'patient-registration-delete-doctor' doctor.id %}">
-                                <i class="zmdi zmdi-delete"></i>
-                            </a></td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 {% endblock content %}

@@ -1,29 +1,19 @@
 {% extends "patient_registration/base.html" %}
 {% load static %}
 {% block content %}
-    <div class="body_scroll">
-        <div class="block-header">
-            <div class="row">
-                <div class="col-lg-7 col-md-6 col-sm-12">
-                    <h2>Appointments for {{ doctor.name }}</h2>
-                </div>
-                <div class="col-lg-5 col-md-6 col-sm-12">
-                    <button class="btn btn-primary btn-icon float-right right_icon_toggle_btn" type="button"><i
-                            class="zmdi zmdi-arrow-right"></i></button>
-                </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-7 col-md-6 col-sm-12">
+                <h2>Appointments for {{ doctor.name }}</h2>
             </div>
-        </div>
-        <div class="container-fluid">
-            <div class="row">
-                <div class="card">
-                    <div class="body">
-                        {% if appointments|length %}
-                            <div id="calendar"></div>
-                        {% else %}
-                            <h3 class="text-warning">Sorry, There are currently no appointment
-                                for {{ doctor.name }}</h3>
-                        {% endif %}
-                    </div>
+            <div class="card">
+                <div class="body">
+                    {% if appointments|length %}
+                        <div id="calendar"></div>
+                    {% else %}
+                        <h3 class="text-warning">Sorry, There are currently no appointment
+                            for {{ doctor.name }}</h3>
+                    {% endif %}
                 </div>
             </div>
         </div>
