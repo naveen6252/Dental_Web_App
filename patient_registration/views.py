@@ -23,7 +23,7 @@ def home(request):
 
 class PatientListView(LoginRequiredMixin, ListView):
     model = Patient
-    ordering = ['-register_date']
+
 
     def get_context_data(self, **kwargs):
         context = super(PatientListView, self).get_context_data(**kwargs)
