@@ -3,22 +3,18 @@
    var pluginName = "bootstrapMaterialDatePicker";
    var pluginDataName = "plugin_" + pluginName;
 
-   moment.locale('en');
+   moment.locale('en-US');
 
    function Plugin(element, options)
    {
       this.currentView = 0;
 
-      this.minDate;
-      this.maxDate;
-
       this._attachedEvents = [];
 
       this.element = element;
       this.$element = $(element);
-
-      this.params = {date: true, time: true, format: 'YYYY-MM-DD HH:mm:ss', minDate: '2018-01-01', maxDate: '2030-12-31', currentDate: null, lang: 'en', weekStart: 0, shortTime: false, clearButton: false, nowButton: false, cancelText: 'Cancel', okText: 'OK', clearText: 'Clear', nowText: 'Now', switchOnClick: false};
-      this.params = $.fn.extend(this.params, options);
+      this.params = {date: true, time: true, format: 'YYYY-MM-DD HH:mm:ss', minDate: '2018-01-01', maxDate: '2030-12-31', currentDate: null, lang: 'en', weekStart: 0, shortTime: false, clearButton: true, nowButton: false, cancelText: 'Cancel', okText: 'OK', clearText: 'Clear', nowText: 'Now', switchOnClick: false};
+      //this.params = $.fn.extend(this.params, options);
 
       this.name = "dtp_" + this.setName();
       this.$element.attr("data-dtp", this.name);
@@ -763,7 +759,7 @@
                  {
                     this.$element.removeClass('empty');
                  }
-                 this.$element.val(moment(this.currentDate).locale(this.params.lang).format('YYYY-MM-DD HH:mm:ss' ));
+                 this.$element.val(moment(this.currentDate).locale(this.params.lang).format(this.params.format));
                  this.$element.trigger('change', this.currentDate);
               },
               toggleButtons: function (date)

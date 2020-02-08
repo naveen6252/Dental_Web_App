@@ -1,0 +1,137 @@
+{% extends "patient_registration/base.html" %}
+{% load static %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="body">
+                        <h2>Patient Detail</h2>
+                        <h5>Patient ID: {{ object.patient_id }}</h5>
+                        <h5 class="price mt-0">Current Due Amount: <span
+                                class="col-amber">&#x20b9;{{ due_amt }}</span></h5>
+                        <ul class="nav nav-tabs">
+                            <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#personal-detail">Personal
+                                Detail</a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#treatment-history">Treatment
+                                History</a></li>
+                            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#payment-history">Payment
+                                History</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="body">
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="personal-detail">
+                                <h3 class="product-title mb-0">{{ object.name }}</h3>
+                                <h5><abbr title="Phone">P:</abbr> {{ object.mobile }}</h5>
+                                <h5>Age: {{ object.age }}</h5>
+                                <h5>Address: {{ object.address }}</h5>
+                                <h5>Register Date: {{ object.register_date }}</h5>
+                                <div class="row">
+                                    <div class="col-lg-3"></div>
+                                    <div class="col-lg-6">
+                                        <a class="btn btn-block btn-primary"
+                                           href="{% url 'patient-registration-update-patient' object.id %}"
+                                           title="Edit Patient"><i
+                                                class="zmdi zmdi-collection-plus"></i> Edit Patient</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane" id="treatment-history">
+                                <div class="row">
+                                    <div class="col-lg-3"></div>
+                                    <div class="col-lg-6">
+                                        <a class="btn btn-block btn-primary"
+                                           href="{% url 'patient-registration-add-invoice-service' object.patient_id %}"
+                                           title="Add Treatment"><i
+                                                class="zmdi zmdi-collection-plus"></i> New Treatment</a>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="table-responsive mt-2">
+                                        <table class="table table-bordered table-striped table-hover js-basic-example dataTable">
+                                            <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Treatment</th>
+                                                <th>Tooth</th>
+                                                <th>Laboratory</th>
+                                                <th>Amount</th>
+                                                <th>Description</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for service in services %}
+                                                <tr>
+                                                    <td>{{ service.service_date|date:'d M Y P' }}</td>
+                                                    <td>{{ service.treatment }}</td>
+                                                    <td>{{ service.tooth }}</td>
+                                                    <td>{{ service.laboratory_name }}</td>
+                                                    <td>&#x20b9;{{ service.amount }}</td>
+                                                    <td>{{ service.description }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane" id="payment-history">
+                                <div class="row">
+                                    <div class="col-lg-3"></div>
+                                    <div class="col-lg-6">
+                                        <a class="btn btn-block btn-primary"
+                                           href="{% url 'patient-registration-add-invoice' object.patient_id %}"
+                                           title="Register New Payment"><i
+                                                class="zmdi zmdi-collection-plus"></i> Register new Payment</a>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="table-responsive mt-2">
+                                        <table class="table table-bordered table-striped table-hover js-basic-example dataTable">
+                                            <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Doctor</th>
+                                                <th>Deposit Amount</th>
+                                                <th>Note</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for invoice in invoices %}
+                                                <tr>
+                                                    <td>{{ invoice.invoice_date|date:'d M Y P' }}</td>
+                                                    <td>{{ invoice.doctor }}</td>
+                                                    <td>&#x20b9;{{ invoice.deposit }}</td>
+                                                    <td>{{ invoice.note }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block initial_script %}
+    <script src="{% static 'patient_registration/bundles/datatablescripts.bundle.js' %}"></script>
+    <script src="{% static 'patient_registration/plugins/jquery-datatable/buttons/dataTables.buttons.min.js' %}"></script>
+    <script src="{% static 'patient_registration/plugins/jquery-datatable/buttons/buttons.bootstrap4.min.js' %}"></script>
+    <script src="{% static 'patient_registration/plugins/jquery-datatable/buttons/buttons.colVis.min.js' %}"></script>
+    <script src="{% static 'patient_registration/plugins/jquery-datatable/buttons/buttons.flash.min.js' %}"></script>
+    <script src="{% static 'patient_registration/plugins/jquery-datatable/buttons/buttons.html5.min.js' %}"></script>
+    <script src="{% static 'patient_registration/plugins/jquery-datatable/buttons/buttons.print.min.js' %}"></script>
+{% endblock initial_script %}
+
+{% block final_script %}
+    <script src="{% static 'patient_registration/js/pages/tables/jquery-datatable.js' %}"></script>
+{% endblock %}

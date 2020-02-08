@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinLengthValidator
+from django.core.validators import RegexValidator
 from django.utils import timezone
 from django.urls import reverse
 
@@ -22,9 +22,11 @@ class Patient(models.Model):
         (1, 'Female'),
         (2, 'Other')
     ]
+    phone_regex = RegexValidator(regex=r'^\+?1?\d{9,12}$',
+                                 message="Phone number must be entered in the format: '+919999999'")
     patient_id = models.IntegerField(unique=True)
     name = models.CharField(max_length=50)
-    mobile = models.CharField(max_length=15, validators=[MinLengthValidator(6)])
+    mobile = models.CharField(max_length=15, validators=[phone_regex])
     age = models.IntegerField()
     sex = models.IntegerField(choices=gender_choices)
     address = models.TextField()
@@ -51,20 +53,20 @@ class Invoice(models.Model):
         return reverse('patient-registration-view-slip', kwargs={'pk': self.patient.id})
 
 
-class Service(models.Model):
-    tooth_choices = [
-        (0, '11 to 18'),
-        (1, '21 to 28'),
-        (2, '31 to 38'),
-        (3, '41 to 48'),
-        (4, '51 to 55'),
-        (5, '61 to 65'),
-        (6, '71 to 75'),
-        (7, '81 to 85')
-    ]
-    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
+class Treatment(models.Model):
     treatment = models.CharField(max_length=50)
-    tooth = models.IntegerField(choices=tooth_choices, blank=True)
+
+    def __str__(self):
+        return str(self.treatment)
+
+    def get_absolute_url(self):
+        return reverse('patient-registration-patients')
+
+
+class Service(models.Model):
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
+    treatment = models.ForeignKey(Treatment, on_delete=models.CASCADE)
+    tooth = models.CharField(blank=True, max_length=50)
     service_date = models.DateTimeField(default=timezone.now)
     laboratory_name = models.CharField(max_length=50, blank=True)
     amount = models.FloatField()

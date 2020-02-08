@@ -3,13 +3,10 @@
 {% load crispy_forms_tags %}
 {% block content %}
     <div class="row">
-        <div class="col-lg-7 col-md-6 col-sm-12">
-            <h2>Add Appointment</h2>
-        </div>
-        <div class="col-md-1"></div>
-        <form class="card auth_form col-md-10" method="POST">
+        <form class="card auth_form" method="POST">
             {% csrf_token %}
             <div class="body">
+                 <legend class="border-bottom mb-4">Appointment</legend>
                 {{ form|crispy }}
                 <button class="btn btn-primary btn-block" type="submit">Submit
                 </button>
@@ -19,8 +16,7 @@
 {% endblock content %}
 
 {% block initial_script %}
-    <script src="{% static 'patient_registration/plugins/momentjs/moment.js' %}"></script> <!-- Moment Plugin Js -->
-    <script src="{% static 'patient_registration/plugins/bootstrap-material-datetimepicker/js/bootstrap-material-datetimepicker.js' %}"></script>
+    C
 {% endblock initial_script %}
 
 {% block final_script %}

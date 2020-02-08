@@ -1,12 +1,14 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-import json
+from django.http import HttpResponse
 from django.urls import reverse
 from django.db.models import Sum
-from .models import Patient, Doctor, Appointment, Service, Invoice
+from .models import Patient, Doctor, Appointment, Service, Invoice, Treatment
 from datetime import datetime, timedelta
-from .forms import InvoiceCreateForm, ServiceCreateForm, AppointmentCreateForm
+import json
+import csv
+from .forms import InvoiceCreateForm, ServiceCreateForm, AppointmentCreateForm, PatientAppointmentForm
 from django.views.generic import (
     CreateView,
     ListView,
@@ -24,9 +26,9 @@ def home(request):
 class PatientListView(LoginRequiredMixin, ListView):
     model = Patient
 
-
     def get_context_data(self, **kwargs):
         context = super(PatientListView, self).get_context_data(**kwargs)
+
         context['title'] = 'Patient'
         return context
 
@@ -43,6 +45,22 @@ class PatientDeleteView(LoginRequiredMixin, DeleteView):
         return context
 
 
+class PatientDetailView(LoginRequiredMixin, DetailView):
+    model = Patient
+
+    def get_context_data(self, **kwargs):
+        context = super(PatientDetailView, self).get_context_data(**kwargs)
+        patient = self.get_object()
+        context['services'] = Service.objects.filter(invoice__patient=patient).order_by('-service_date')
+        context['invoices'] = Invoice.objects.filter(patient=patient).order_by('-invoice_date')
+        context['amt_total'] = context['services'].aggregate(Sum('amount'))['amount__sum']
+        context['deposit_total'] = context['invoices'].aggregate(Sum('deposit'))['deposit__sum']
+        context['due_amt'] = context['deposit_total'] - context['amt_total']
+
+        context['title'] = 'Patient'
+        return context
+
+
 class PatientCreateView(LoginRequiredMixin, CreateView):
     model = Patient
     fields = ['name', 'mobile', 'age', 'sex', 'address']
@@ -56,6 +74,26 @@ class PatientCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(PatientCreateView, self).get_context_data(**kwargs)
+        context['title'] = 'Patient Registration'
+        return context
+
+
+class TreatmentCreateView(LoginRequiredMixin, CreateView):
+    model = Treatment
+    fields = ['treatment']
+
+    def get_context_data(self, **kwargs):
+        context = super(TreatmentCreateView, self).get_context_data(**kwargs)
+        context['title'] = 'Treatment'
+        return context
+
+
+class PatientUpdateView(LoginRequiredMixin, UpdateView):
+    model = Patient
+    fields = ['patient_id', 'name', 'mobile', 'age', 'sex', 'address']
+
+    def get_context_data(self, **kwargs):
+        context = super(PatientUpdateView, self).get_context_data(**kwargs)
         context['title'] = 'Patient Registration'
         return context
 
@@ -183,10 +221,36 @@ class AppointmentUpdateView(LoginRequiredMixin, UpdateView):
         return context
 
 
+class AppointmentDeleteView(LoginRequiredMixin, DeleteView):
+    model = Appointment
+
+    def get_success_url(self):
+        return reverse('patient-registration-view-appointment', kwargs={'doc_id': self.get_object().doctor.id})
+
+    def get_context_data(self, **kwargs):
+        context = super(AppointmentDeleteView, self).get_context_data(**kwargs)
+        context['title'] = 'Appointment - Delete'
+        return context
+
+
 @login_required
 def appointments(request, doc_id):
+    doctor = Doctor.objects.get(id=doc_id)
+    if request.method == 'POST':
+        appointment_form = PatientAppointmentForm(request.POST)
+        if appointment_form.is_valid():
+            appointment = appointment_form.save(commit=False)
+            appointment.doctor = doctor
+            appointment.save()
+
+            return redirect('patient-registration-view-appointment', doc_id=doc_id)
+
+    else:
+        appointment_form = PatientAppointmentForm()
+
     appointments_array = []
-    for appointment in Appointment.objects.filter(doctor__id=doc_id):
+    current_appointments = Appointment.objects.filter(doctor__id=doc_id)
+    for appointment in current_appointments:
         start = appointment.date
         end = start + timedelta(minutes=30)
         appointments_array.append(
@@ -197,8 +261,10 @@ def appointments(request, doc_id):
         )
 
     all_appointments = json.dumps(appointments_array)
-    doctor = Doctor.objects.get(id=doc_id)
-    context = {'appointments': all_appointments, 'title': 'Doctor', 'doctor': doctor}
+
+    next_appointments = current_appointments.filter(date__gte=datetime.now()).order_by('date')
+    context = {'appointments_json': all_appointments, 'title': 'Doctor', 'doctor': doctor, 'form': appointment_form,
+               'next_appointments': next_appointments, 'appointments': current_appointments}
     return render(request, 'patient_registration/appointments.html', context)
 
 
@@ -227,3 +293,36 @@ class InvoiceSlipView(LoginRequiredMixin, DetailView):
             'deposit__sum']
         context['balance'] = context['deposit_total'] - context['amount_total']
         return context
+
+
+@login_required
+def export_data(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="PatientData' + datetime.now().astimezone().strftime(
+        '%Y%m%d_%H%M%S') + '.csv"'
+    writer = csv.writer(response)
+
+    writer.writerow(['Patient_ID', 'Patient Name', 'Mobile', 'Age', 'Sex', 'Address', 'Registered Date', 'Doctor Name',
+                     'Invoice ID', 'Invoice Date', 'Deposit', 'Invoice Note', 'Service ID', 'Treatment', 'Tooth',
+                     'Treatment Date', 'Laboratory', 'Treatment Amount', 'Treatment Description'])
+
+    services = Service.objects.all()
+    for service in services:
+        invoice = service.invoice
+        patient = invoice.patient
+        doctor = invoice.doctor
+        row = [patient.patient_id, patient.name, patient.mobile, patient.age, patient.sex, patient.address,
+               patient.register_date, doctor.name, invoice.id, invoice.invoice_date, invoice.deposit, invoice.note,
+               service.id, service.treatment.treatment, service.tooth, service.service_date, service.laboratory_name,
+               service.amount, service.description]
+        writer.writerow(row)
+
+    invoices = Invoice.objects.filter(service__isnull=True)
+    for invoice in invoices:
+        patient = invoice.patient
+        doctor = invoice.doctor
+        row = [patient.patient_id, patient.name, patient.mobile, patient.age, patient.sex, patient.address,
+               patient.register_date, doctor.name, invoice.id, invoice.invoice_date, invoice.deposit, invoice.note, '',
+               '', '', '', '', '', '']
+        writer.writerow(row)
+    return response

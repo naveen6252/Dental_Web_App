@@ -13,18 +13,19 @@
     {% endif %}
 
     <link rel="shortcut icon" type="image/png" href="{% static 'patient_registration/images/favicon.ico' %}"/>
-    <!-- JQuery DataTable Css -->
     <link rel="stylesheet"
           href="{% static 'patient_registration/plugins/jquery-datatable/dataTables.bootstrap4.min.css' %}">
     <link rel="stylesheet" href="{% static  'patient_registration/plugins/bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static  'patient_registration/plugins/fullcalendar/fullcalendar.min.css' %}">
-    <!-- Bootstrap Material Datetime Picker Css -->
     <link rel="stylesheet"
           href="{% static  'patient_registration/plugins/bootstrap-material-datetimepicker/css/bootstrap-material-datetimepicker.css' %}">
-    <!-- Bootstrap Select Css -->
     <link rel="stylesheet"
           href="{% static  'patient_registration/plugins/bootstrap-select/css/bootstrap-select.css' %}">
-    <!-- Custom Css -->
+    <link rel="stylesheet"
+          href="{% static  'patient_registration/plugins/jvectormap/jquery-jvectormap-2.0.3.min.css' %}"/>
+    <link rel="stylesheet" href="{% static  'patient_registration/plugins/charts-c3/plugin.css' %}"/>
+
+    <link rel="stylesheet" href="{% static  'patient_registration/plugins/morrisjs/morris.min.css' %}"/>
     <link rel="stylesheet" href="{% static 'patient_registration/css/style.min.css' %}">
 </head>
 
@@ -42,23 +43,15 @@
 <!-- Overlay For Sidebars -->
 <div class="overlay"></div>
 
-<!-- Main Search -->
-<div id="search">
-    <button id="close" type="button" class="close btn btn-primary btn-icon btn-icon-mini btn-round">x</button>
-    <form>
-        <label>
-            <input type="search" value="" placeholder="Search..."/>
-        </label>
-        <button type="submit" class="btn btn-primary">Search</button>
-    </form>
-</div>
-
 <!-- Right Icon menu Sidebar -->
 <div class="navbar-right">
     <ul class="navbar-nav">
-        <li><a href="#search" class="main_search" title="Search..."><i class="zmdi zmdi-search"></i></a></li>
+        <li><a href="{% url 'export-all-data' %}" class="mega-menu" title="Export All Data"><i
+                class="zmdi zmdi-cloud-download"></i></a></li>
+
         <li><a href="javascript:void(0);" class="js-right-sidebar" title="Setting"><i
                 class="zmdi zmdi-settings zmdi-hc-spin"></i></a></li>
+        <li><a href="/admin" class="mega-menu" title="Admin Page"><i class="zmdi zmdi-android"></i></a></li>
         <li><a href="{% url 'logout' %}" class="mega-menu" title="Sign Out"><i class="zmdi zmdi-power"></i></a></li>
     </ul>
 </div>
@@ -173,10 +166,12 @@
                     </ul>
                 </div>
                 <div class="card">
-                    <h6>Doctor Registration</h6>
+                    <h6>Registration</h6>
                     <ul>
                         <li><a class="text-secondary" href="{% url 'patient-registration-add-doctor' %}">Register new
                             doctor</a></li>
+                        <li><a class="text-secondary" href="{% url 'patient-registration-add-treatment' %}">Add new
+                            Treatment</a></li>
                     </ul>
                 </div>
             </div>

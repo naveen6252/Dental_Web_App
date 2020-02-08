@@ -1,19 +1,41 @@
 {% extends "patient_registration/base.html" %}
 {% load static %}
+{% load crispy_forms_tags %}
 {% block content %}
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-7 col-md-6 col-sm-12">
                 <h2>Appointments for {{ doctor.name }}</h2>
             </div>
-            <div class="card">
-                <div class="body">
-                    {% if appointments|length %}
+        </div>
+        <div class="row">
+            <div class="col-md-12 col-lg-8 col-xl-8">
+                <div class="card">
+                    <div class="body">
                         <div id="calendar"></div>
-                    {% else %}
-                        <h3 class="text-warning">Sorry, There are currently no appointment
-                            for {{ doctor.name }}</h3>
-                    {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12 col-lg-4 col-xl-4">
+                <div class="card">
+                    <div class="event_list body">
+                        {% if not next_appointments %}
+                            <h5 class="text-blue"><strong>Cheers <i class="zmdi zmdi-drink"></i></strong>, No more
+                                upcoming Appointments</h5>
+                        {% else %}
+                            <div class="title"><strong>Next Appointments</strong></div>
+                        {% endif %}
+                        {% for appointment in next_appointments %}
+                            <div class="e_list">
+                                <h5 class="e_name">
+                                    <i class="zmdi zmdi-account"></i> {{ appointment.patient.name }}
+                                    - {{ appointment.patient.patient_id }}
+                                </h5>
+                                <h6><i class="zmdi zmdi-time mt-0"></i> {{ appointment.date|date:'j M Y P' }}</h6>
+                                <p class="e_details">{{ appointment.note }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -24,6 +46,10 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">View Appointment</h4>
+                    <button class="btn btn-danger align-right delete-btn"
+                            title="Delete Appointment">
+                        <span class="zmdi zmdi-delete"> Delete</span>
+                    </button>
                 </div>
                 <div class="modal-body">
                     <div class="e_list">
@@ -44,8 +70,31 @@
             </div>
         </div>
     </div>
+    <!-- Event direct add Modal popup -->
+    <div class="modal fade" id="addDirectEvent" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="body">
+                        <form class="card auth_form col-md-10" method="POST">
+                            {% csrf_token %}
+                            <div class="body">
+                                {{ form|crispy }}
+                                <button class="btn btn-primary btn-block" type="submit">Submit
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
-        let event_data = {{ appointments|safe }};
+        let event_data = {{ appointments_json|safe }};
     </script>
 {% endblock content %}
 
@@ -57,4 +106,5 @@
 
 {% block final_script %}
     <script src="{% static 'patient_registration/bundles/fullcalendarscripts.bundle.js' %}"></script>
+    <script src="{% static 'patient_registration/js/pages/forms/basic-form-elements.js' %}"></script>
 {% endblock final_script %}

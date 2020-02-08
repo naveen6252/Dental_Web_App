@@ -12,9 +12,7 @@
                 <tr>
                     <th>#</th>
                     <th>Name</th>
-                    <th>Phone</th>
-                    <th>Age</th>
-                    <th>Address</th>
+                    <th>Detail</th>
                     <th>Payment</th>
                     <th>Treatment</th>
                     <th>Appointment</th>
@@ -26,9 +24,11 @@
                     <tr>
                         <td>{{ patient.patient_id }}</td>
                         <td>{{ patient.name }}</td>
-                        <td>{{ patient.mobile }}</td>
-                        <td>{{ patient.age }}</td>
-                        <td>{{ patient.address }}</td>
+                        <td><a class="btn btn-block btn-primary"
+                               href="{% url 'patient-registration-view-patient' patient.id %}"
+                               title="View Patient details"><i
+                                class="zmdi zmdi-collection-text"></i></a>
+                        </td>
                         <td><a class="btn btn-block btn-primary"
                                href="{% url 'patient-registration-add-invoice' patient.patient_id %}"
                                title="Register Payment"><i
@@ -36,7 +36,7 @@
                         <td><a class="btn btn-block btn-primary"
                                href="{% url 'patient-registration-add-invoice-service' patient.patient_id %}"
                                title="Add Treatment"><i
-                                class="zmdi zmdi-collection-plus    "></i></a>
+                                class="zmdi zmdi-collection-plus"></i></a>
                         </td>
                         <td><a class="btn btn-block btn-primary"
                                href="{% url 'patient-registration-add-appointment' patient.patient_id %}"

@@ -5,10 +5,9 @@
         <form class="card auth_form" method="POST">
             {% csrf_token %}
             <div class="body">
-                <legend class="border-bottom mb-4">Add Service for {{ patient.name }}</legend>
-                {{ inv_form|crispy }}
-                {{ serv_form|crispy }}
-                <button class="btn btn-primary btn-block" type="submit">Add Service
+                <legend class="border-bottom mb-4">Treatment</legend>
+                {{ form|crispy }}
+                <button class="btn btn-primary btn-block" type="submit">Submit
                 </button>
             </div>
         </form>

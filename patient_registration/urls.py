@@ -1,16 +1,20 @@
 from django.urls import path
 from . import views
-from .views import PatientCreateView, AppointmentCreateView, PatientListView, PatientDeleteView, \
-    ServiceCreateView, DoctorCreateView, DoctorListView, DoctorDeleteView, DoctorUpdateView, InvoiceCreateView, \
-    AppointmentUpdateView, InvoiceDetailView, InvoiceSlipView
+from .views import PatientCreateView, AppointmentCreateView, PatientListView, PatientDeleteView, PatientDetailView, \
+    PatientUpdateView, ServiceCreateView, DoctorCreateView, DoctorListView, DoctorDeleteView, DoctorUpdateView, \
+    InvoiceCreateView, TreatmentCreateView, \
+    AppointmentUpdateView, InvoiceDetailView, InvoiceSlipView, AppointmentDeleteView
 
 urlpatterns = [
     path('', views.home, name='patient-registration-home'),
     path('patient/new/', PatientCreateView.as_view(), name='patient-registration-add-patient'),
+    path('treatment/new/', TreatmentCreateView.as_view(), name='patient-registration-add-treatment'),
     path('doctor/new', DoctorCreateView.as_view(), name='patient-registration-add-doctor'),
     path('patient/', PatientListView.as_view(), name='patient-registration-patients'),
     path('doctor/', DoctorListView.as_view(), name='patient-registration-doctors'),
     path('patient/<int:pk>/delete/', PatientDeleteView.as_view(), name='patient-registration-delete-patient'),
+    path('patient/<int:pk>/update/', PatientUpdateView.as_view(), name='patient-registration-update-patient'),
+    path('patient/<int:pk>/', PatientDetailView.as_view(), name='patient-registration-view-patient'),
     path('patient/<int:pk>/invoice/', InvoiceSlipView.as_view(), name='patient-registration-view-slip'),
     path('doctor/<int:pk>/delete/', DoctorDeleteView.as_view(), name='patient-registration-delete-doctor'),
     path('doctor/<int:pk>/update/', DoctorUpdateView.as_view(), name='patient-registration-update-doctor'),
@@ -23,5 +27,8 @@ urlpatterns = [
     path('appointment/<int:pk>/update/', AppointmentUpdateView.as_view(),
          name='patient-registration-update-appointment'),
     path('appointment/doctor/<int:doc_id>/', views.appointments, name='patient-registration-view-appointment'),
+    path('data/export/all', views.export_data, name='export-all-data'),
+    path('appointment/<int:pk>/delete/', AppointmentDeleteView.as_view(),
+         name='patient-registration-delete-appointment'),
 
 ]

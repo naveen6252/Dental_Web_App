@@ -1,5 +1,6 @@
 $(function () {
     enableDrag();
+
     function enableDrag() {
         $('#external-events .fc-event').each(function () {
             $(this).data('event', {
@@ -29,27 +30,28 @@ $(function () {
 
     var calendar = $('#calendar');
     // Add direct event to calendar
-    /*var newEvent = function (start) {
-        $('#addDirectEvent input[name="event-name"]').val("");
-        $('#addDirectEvent select[name="event-bg"]').val("");
+    var newEvent = function (start) {
+        let date = start.toDate();
+        let day = date.getDate().toString();
+        let month = (date.getMonth() + 1).toString();
+        let year = date.getFullYear().toString();
+        let hour = start.hours().toString()
+        let minute = start.minutes().toString()
+        let second = start.seconds().toString()
+        if (month.length < 2)
+            month = '0' + month;
+        if (day.length < 2)
+            day = '0' + day;
+        if (hour.length < 2)
+            hour = '0' + hour;
+        if (minute.length < 2)
+            minute = '0' + minute;
+        if (second.length < 2)
+            second = '0' + second;
+        let date_string = year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second;
+        $('#addDirectEvent input[name="date"]').val(date_string);
         $('#addDirectEvent').modal('show');
-        $('#addDirectEvent .save-btn').unbind();
-        $('#addDirectEvent .save-btn').on('click', function () {
-            var title = $('#addDirectEvent input[name="event-name"]').val();
-            var classes = 'bg-' + $('#addDirectEvent select[name="event-bg"]').val();
-            if (title) {
-                var eventData = {
-                    title: title,
-                    start: start,
-                    className: classes
-                };
-                calendar.fullCalendar('renderEvent', eventData, true);
-                $('#addDirectEvent').modal('hide');
-            } else {
-                alert("Title can't be blank. Please try again.")
-            }
-        });
-    }*/
+    }
 
     // initialize the calendar
     calendar.fullCalendar({
@@ -79,7 +81,7 @@ $(function () {
             }
         },
         select: function (start, end, allDay) {
-            //newEvent(start);
+            newEvent(start);
         },
         eventClick: function (calEvent, jsEvent, view) {
             var eventModal = $('#eventViewModal');
@@ -88,12 +90,11 @@ $(function () {
             eventModal.find('span[id="time"]').html(calEvent.start._i);
             eventModal.find('span[id="note"]').html(calEvent.note);
             eventModal.find('.edit-btn').click(function () {
-                window.location.href = '/appointment/'+calEvent.appointment_id+'/update/'
+                window.location.href = '/appointment/' + calEvent.appointment_id + '/update/'
             });
-            // if (title){
-            //     calEvent.title = title;
-            //     calendar.fullCalendar('updateEvent',calEvent);
-            // }
+            eventModal.find('.delete-btn').click(function () {
+                window.location.href = '/appointment/' + calEvent.appointment_id + '/delete/'
+            });
         }
     });
 });
