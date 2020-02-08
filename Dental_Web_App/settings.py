@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
-# import django_heroku
+import django_heroku
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,7 +25,7 @@ SECRET_KEY = '&3(mae)02yds-wdw10%54))&q@hd7#yaf%)#q5nf4y)-h_s7$='
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['harbor-dental.herokuapp.com', 'localhost']
+ALLOWED_HOSTS = ['harbor-dental.herokuapp.com']
 
 # Application definition
 
@@ -124,4 +124,4 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 LOGIN_REDIRECT_URL = 'patient-registration-home'
 LOGIN_URL = 'login'
 
-# django_heroku.settings(locals())
+django_heroku.settings(locals())
