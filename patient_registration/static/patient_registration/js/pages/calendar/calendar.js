@@ -87,7 +87,7 @@ $(function () {
             var eventModal = $('#eventViewModal');
             eventModal.modal('show');
             eventModal.find('span[id="patient"]').html(calEvent.title);
-            eventModal.find('span[id="time"]').html(calEvent.start._i);
+            eventModal.find('span[id="time"]').html(calEvent.start.toString().substring(0,21));
             eventModal.find('span[id="note"]').html(calEvent.note);
             eventModal.find('.edit-btn').click(function () {
                 window.location.href = '/appointment/' + calEvent.appointment_id + '/update/'

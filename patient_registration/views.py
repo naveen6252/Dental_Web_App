@@ -52,11 +52,7 @@ class PatientDetailView(LoginRequiredMixin, DetailView):
         context = super(PatientDetailView, self).get_context_data(**kwargs)
         patient = self.get_object()
         context['services'] = Service.objects.filter(invoice__patient=patient).order_by('-service_date')
-        context['invoices'] = Invoice.objects.filter(patient=patient).order_by('-invoice_date')
-        context['amt_total'] = patient.total_service
-        context['deposit_total'] = patient.total_deposit
-        context['due_amt'] = context['deposit_total'] - context['amt_total']
-
+        context['invoices'] = patient.invoice_set.order_by('-invoice_date')
         context['title'] = 'Patient'
         return context
 
@@ -282,7 +278,9 @@ class InvoiceDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(InvoiceDetailView, self).get_context_data(**kwargs)
         context['title'] = 'Invoice'
-        context['sub_total'] = self.get_object().service_set.aggregate(Sum('amount'))['amount__sum']
+        sub_total = self.get_object().service_set.aggregate(Sum('amount'))['amount__sum']
+        sub_total = sub_total if sub_total else 0
+        context['sub_total'] = sub_total
         context['balance'] = self.get_object().deposit - context['sub_total']
         return context
 
@@ -293,11 +291,7 @@ class InvoiceSlipView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(InvoiceSlipView, self).get_context_data(**kwargs)
-        patient = self.get_object()
         context['title'] = 'Invoice'
-        context['amount_total'] = patient.total_service
-        context['deposit_total'] = patient.total_deposit
-        context['balance'] = context['deposit_total'] - context['amount_total']
         return context
 
 

@@ -55,11 +55,13 @@ class Patient(models.Model):
 
     @property
     def total_deposit(self):
-        return self.invoice_set.aggregate(Sum('deposit'))['deposit__sum']
+        total_deposit = self.invoice_set.aggregate(Sum('deposit'))['deposit__sum']
+        return total_deposit if total_deposit else 0.0
 
     @property
     def total_service(self):
-        return Service.objects.filter(invoice__patient=self).aggregate(Sum('amount'))['amount__sum']
+        total_service = Service.objects.filter(invoice__patient=self).aggregate(Sum('amount'))['amount__sum']
+        return total_service if total_service else 0.0
 
     @property
     def due_amount(self):
@@ -77,7 +79,7 @@ class Invoice(models.Model):
         return str(self.id)
 
     def get_absolute_url(self):
-        return reverse('patient-registration-view-slip', kwargs={'pk': self.patient.id})
+        return reverse('patient-registration-view-invoice', kwargs={'pk': self.id})
 
 
 class Treatment(models.Model):

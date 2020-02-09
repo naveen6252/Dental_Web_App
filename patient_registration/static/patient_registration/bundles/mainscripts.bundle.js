@@ -292,4 +292,8 @@ $.AdminAero.browser = {
         var e = $(this).attr("href") + "#dark";
         $(this).attr("href", e)
     }))
+
+});
+$(document).on("wheel", "input[type=number]", function (e) {
+    $(this).blur();
 });

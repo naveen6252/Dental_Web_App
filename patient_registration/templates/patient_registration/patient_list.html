@@ -1,66 +1,72 @@
 {% extends "patient_registration/base.html" %}
 {% load static %}
 {% block content %}
-
-    <div class="body">
-        <div class="col-lg-7 col-md-6 col-sm-12">
-            <h2>Patients</h2>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped table-hover js-basic-example dataTable">
-                <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Detail</th>
-                    <th>Due Amount</th>
-                    <th>Payment</th>
-                    <th>Treatment</th>
-                    <th>Appointment</th>
-                    <th>Delete</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for patient in object_list %}
-                    <tr>
-                        <td>{{ patient.patient_id }}</td>
-                        <td>{{ patient.name }}</td>
-                        <td><a class="btn btn-block btn-primary"
-                               href="{% url 'patient-registration-view-patient' patient.id %}"
-                               title="View Patient details"><i
-                                class="zmdi zmdi-collection-text"></i></a>
-                        </td>
-                        <td>
-                            {% if patient.due_amount > 0 %}
-                                <span class="text-danger">&#x20b9; {{ patient.due_amount }}</span>
-                            {% else %}
-                                <span class="text-green">&#x20b9; {{ patient.due_amount }}</span>
-                            {% endif %}
-                        </td>
-                        <td><a class="btn btn-block btn-primary"
-                               href="{% url 'patient-registration-add-invoice' patient.patient_id %}"
-                               title="Register Payment"><i
-                                class="zmdi zmdi-money"></i></a></td>
-                        <td><a class="btn btn-block btn-primary"
-                               href="{% url 'patient-registration-add-invoice-service' patient.patient_id %}"
-                               title="Add Treatment"><i
-                                class="zmdi zmdi-collection-plus"></i></a>
-                        </td>
-                        <td><a class="btn btn-block btn-primary"
-                               href="{% url 'patient-registration-add-appointment' patient.patient_id %}"
-                               title="Add Appointment"><i
-                                class="zmdi zmdi-calendar-alt    "></i></a>
-                        </td>
-                        <td><a class="btn btn-block btn-danger"
-                               href="{% url 'patient-registration-delete-patient' patient.id %}">
-                            <i class="zmdi zmdi-delete"></i>
-                        </a></td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+    <div class="container-fluid">
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="body">
+                        <h2>Patient List</h2>
+                        <hr>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped table-hover js-basic-example dataTable">
+                                <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Due Amount</th>
+                                    <th>Payment</th>
+                                    <th>Treatment</th>
+                                    <th>Appointment</th>
+                                    <th>Delete</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for patient in object_list %}
+                                    <tr>
+                                        <td>
+                                            <a href="{% url 'patient-registration-view-patient' patient.id %}"
+                                               title="View Patient details">
+                                                {{ patient.patient_id }}
+                                            </a>
+                                        </td>
+                                        <td>{{ patient.name }}</td>
+                                        <td>
+                                            {% if patient.due_amount > 0 %}
+                                                <span class="text-danger text-center">&#x20b9; {{ patient.due_amount }}</span>
+                                            {% else %}
+                                                <span class="text-green text-center">&#x20b9; {{ patient.due_amount }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td><a class="btn btn-block btn-primary"
+                                               href="{% url 'patient-registration-add-invoice' patient.patient_id %}"
+                                               title="Register Payment"><i
+                                                class="zmdi zmdi-money"></i></a></td>
+                                        <td><a class="btn btn-block btn-primary"
+                                               href="{% url 'patient-registration-add-invoice-service' patient.patient_id %}"
+                                               title="Add Treatment"><i
+                                                class="zmdi zmdi-collection-plus"></i></a>
+                                        </td>
+                                        <td><a class="btn btn-block btn-primary"
+                                               href="{% url 'patient-registration-add-appointment' patient.patient_id %}"
+                                               title="Add Appointment"><i
+                                                class="zmdi zmdi-calendar-alt    "></i></a>
+                                        </td>
+                                        <td><a class="btn btn-block btn-danger"
+                                               href="{% url 'patient-registration-delete-patient' patient.id %}">
+                                            <i class="zmdi zmdi-delete"></i>
+                                        </a></td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
 {% endblock content %}
 
 {% block initial_script %}
