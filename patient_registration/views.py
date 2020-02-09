@@ -53,8 +53,8 @@ class PatientDetailView(LoginRequiredMixin, DetailView):
         patient = self.get_object()
         context['services'] = Service.objects.filter(invoice__patient=patient).order_by('-service_date')
         context['invoices'] = Invoice.objects.filter(patient=patient).order_by('-invoice_date')
-        context['amt_total'] = context['services'].aggregate(Sum('amount'))['amount__sum']
-        context['deposit_total'] = context['invoices'].aggregate(Sum('deposit'))['deposit__sum']
+        context['amt_total'] = patient.total_service
+        context['deposit_total'] = patient.total_deposit
         context['due_amt'] = context['deposit_total'] - context['amt_total']
 
         context['title'] = 'Patient'
@@ -63,7 +63,7 @@ class PatientDetailView(LoginRequiredMixin, DetailView):
 
 class PatientCreateView(LoginRequiredMixin, CreateView):
     model = Patient
-    fields = ['name', 'mobile', 'age', 'sex', 'address']
+    fields = ['name', 'image', 'mobile', 'age', 'sex', 'address']
 
     def form_valid(self, form):
         number = Patient.objects.filter(register_date__date=datetime.today().date()).count() + 1
@@ -84,13 +84,13 @@ class TreatmentCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(TreatmentCreateView, self).get_context_data(**kwargs)
-        context['title'] = 'Treatment'
+        context['title'] = 'Patient Registration'
         return context
 
 
 class PatientUpdateView(LoginRequiredMixin, UpdateView):
     model = Patient
-    fields = ['patient_id', 'name', 'mobile', 'age', 'sex', 'address']
+    fields = ['patient_id', 'name', 'image', 'mobile', 'age', 'sex', 'address']
 
     def get_context_data(self, **kwargs):
         context = super(PatientUpdateView, self).get_context_data(**kwargs)
@@ -207,7 +207,7 @@ class AppointmentCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(AppointmentCreateView, self).get_context_data(**kwargs)
-        context['title'] = 'Patient Registration'
+        context['title'] = 'Appointment'
         return context
 
 
@@ -217,7 +217,7 @@ class AppointmentUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(AppointmentUpdateView, self).get_context_data(**kwargs)
-        context['title'] = 'Patient Registration'
+        context['title'] = 'Appointment'
         return context
 
 
@@ -263,9 +263,17 @@ def appointments(request, doc_id):
     all_appointments = json.dumps(appointments_array)
 
     next_appointments = current_appointments.filter(date__gte=datetime.now()).order_by('date')
-    context = {'appointments_json': all_appointments, 'title': 'Doctor', 'doctor': doctor, 'form': appointment_form,
+    context = {'appointments_json': all_appointments, 'title': 'Appointment', 'doctor': doctor,
+               'form': appointment_form,
                'next_appointments': next_appointments, 'appointments': current_appointments}
     return render(request, 'patient_registration/appointments.html', context)
+
+
+@login_required
+def doctor_select(request):
+    doctors = Doctor.objects.all()
+    context = {'title': 'Appointment', 'doctors': doctors}
+    return render(request, 'patient_registration/doctor_select.html', context)
 
 
 class InvoiceDetailView(LoginRequiredMixin, DetailView):
@@ -287,10 +295,8 @@ class InvoiceSlipView(LoginRequiredMixin, DetailView):
         context = super(InvoiceSlipView, self).get_context_data(**kwargs)
         patient = self.get_object()
         context['title'] = 'Invoice'
-        context['amount_total'] = Service.objects.filter(
-            invoice__patient=patient).aggregate(Sum('amount'))['amount__sum']
-        context['deposit_total'] = Invoice.objects.filter(patient=patient).aggregate(Sum('deposit'))[
-            'deposit__sum']
+        context['amount_total'] = patient.total_service
+        context['deposit_total'] = patient.total_deposit
         context['balance'] = context['deposit_total'] - context['amount_total']
         return context
 

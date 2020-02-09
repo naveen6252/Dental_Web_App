@@ -25,11 +25,21 @@
                     <div class="body">
                         <div class="tab-content">
                             <div class="tab-pane active" id="personal-detail">
-                                <h3 class="product-title mb-0">{{ object.name }}</h3>
-                                <h5><abbr title="Phone">P:</abbr> {{ object.mobile }}</h5>
-                                <h5>Age: {{ object.age }}</h5>
-                                <h5>Address: {{ object.address }}</h5>
-                                <h5>Register Date: {{ object.register_date }}</h5>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <img src="{{ object.image.url }}"
+                                             class="rounded-circle img-thumbnail ml-4"
+                                             alt="profile-image">
+                                    </div>
+                                    <div class="col-md7">
+                                        <h3 class="product-title mb-0">{{ object.name }}</h3>
+                                        <h5><abbr title="Phone">P:</abbr> {{ object.mobile }}</h5>
+                                        <h5>Age: {{ object.age }}</h5>
+                                        <h5>Address: {{ object.address }}</h5>
+                                        <h5>Register Date: {{ object.register_date }}</h5>
+                                    </div>
+                                </div>
+
                                 <div class="row">
                                     <div class="col-lg-3"></div>
                                     <div class="col-lg-6">

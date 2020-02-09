@@ -13,6 +13,7 @@
                     <th>#</th>
                     <th>Name</th>
                     <th>Detail</th>
+                    <th>Due Amount</th>
                     <th>Payment</th>
                     <th>Treatment</th>
                     <th>Appointment</th>
@@ -28,6 +29,13 @@
                                href="{% url 'patient-registration-view-patient' patient.id %}"
                                title="View Patient details"><i
                                 class="zmdi zmdi-collection-text"></i></a>
+                        </td>
+                        <td>
+                            {% if patient.due_amount > 0 %}
+                                <span class="text-danger">&#x20b9; {{ patient.due_amount }}</span>
+                            {% else %}
+                                <span class="text-green">&#x20b9; {{ patient.due_amount }}</span>
+                            {% endif %}
                         </td>
                         <td><a class="btn btn-block btn-primary"
                                href="{% url 'patient-registration-add-invoice' patient.patient_id %}"

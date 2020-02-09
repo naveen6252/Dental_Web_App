@@ -1,0 +1,20 @@
+{% extends "patient_registration/base.html" %}
+{% block content %}
+    <div class="body">
+        <div class="row">
+            <div class="card">
+                <div class="header">
+                    <h2>Select <strong>Doctor</strong></h2>
+                </div>
+                <div class="body">
+                    <ul class="list">
+                        {% for doctor in doctors %}
+                            <li><a href="{% url 'patient-registration-view-appointment' doctor.id %}"><i
+                                    class="zmdi zmdi-account"></i><span> {{ doctor.name }} {{ doctor.designation }}</span></a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

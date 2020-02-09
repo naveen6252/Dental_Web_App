@@ -99,6 +99,14 @@
             <a href="{% url 'patient-registration-doctors' %}"><i
                     class="zmdi zmdi-assignment-account"></i><span>Doctors</span></a>
             </li>
+            {% if title == 'Appointment' %}
+                <li class="active open">
+                    {% else %}
+                <li>
+            {% endif %}
+            <a href="{% url 'patient-registration-select-doctor' %}"><i
+                    class="zmdi zmdi-calendar-check"></i><span>Appointment</span></a>
+            </li>
         </ul>
     </div>
 </aside>
