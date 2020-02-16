@@ -1,11 +1,13 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.urls import reverse
-from django.db.models import Sum
+from django.db.models import Sum, Count
+from django.db.models.functions import TruncMonth
 from .models import Patient, Doctor, Appointment, Service, Invoice, Treatment
-from datetime import datetime, timedelta
+from datetime import timedelta
+from django.utils import timezone
 import json
 import csv
 from .forms import InvoiceCreateForm, ServiceCreateForm, AppointmentCreateForm, PatientAppointmentForm
@@ -19,7 +21,38 @@ from django.views.generic import (
 
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def home(request):
+    today = timezone.now()
+    month_first_date = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    last_month_first_date = (month_first_date - timedelta(days=1)).replace(day=1)
+    last_month_last_date = month_first_date - timedelta(microseconds=1)
+    total_patients = Patient.objects.count()
+    curr_month_patients = Patient.objects.filter(register_date__gte=month_first_date, register_date__lte=today).count()
+    mtd_sales = Invoice.objects.filter(
+        invoice_date__gte=month_first_date, invoice_date__lte=today).aggregate(Sum('deposit'))['deposit__sum']
+    last_month_sale = Invoice.objects.filter(
+        invoice_date__gte=last_month_first_date, invoice_date__lte=last_month_last_date).aggregate(
+        Sum('deposit'))['deposit__sum']
+
+    total_appointments = Appointment.objects.count()
+    completed_appointments = Appointment.objects.filter(date__lte=timezone.now())
+    revenue = Invoice.objects.aggregate(Sum('deposit'))['deposit__sum']
+    service_amount = Service.objects.aggregate(Sum('amount'))['amount__sum']
+    due = service_amount - revenue
+    total_invoices = Invoice.objects.count()
+
+    mom_deposit = Invoice.objects.annotate(month=TruncMonth('invoice_date')).values('month').annotate(
+        deposit=Sum('deposit')).values('month', 'deposit')
+
+    mom_amount = Service.objects.annotate(month=TruncMonth('service_date')).values('month').annotate(
+        amount=Sum('amount')).values('month', 'amount')
+
+    deposit_by_doctor = Invoice.objects.values('doctor__name').annotate(deposit=Sum('deposit'))
+    amount_by_doctor = Service.objects.values('invoice__doctor__name').annotate(amount=Sum('amount'))
+
+    appointment_by_doctor = Appointment.objects.values('doctor').annotate(appointment=Count('patient'))
+
     return render(request, 'patient_registration/dashboard.html', {'title': 'Dashboard'})
 
 
@@ -62,9 +95,9 @@ class PatientCreateView(LoginRequiredMixin, CreateView):
     fields = ['name', 'image', 'mobile', 'age', 'sex', 'address']
 
     def form_valid(self, form):
-        number = Patient.objects.filter(register_date__date=datetime.today().date()).count() + 1
+        number = Patient.objects.filter(register_date__date=timezone.now().date()).count() + 1
         number = '0' + str(number) if number < 10 else str(number)
-        p_id = datetime.today().strftime('%Y%m%d') + number
+        p_id = timezone.now().strftime('%Y%m%d') + number
         form.instance.patient_id = int(p_id)
         return super().form_valid(form)
 
@@ -153,7 +186,7 @@ class ServiceCreateView(LoginRequiredMixin, CreateView):
 
 class DoctorCreateView(LoginRequiredMixin, CreateView):
     model = Doctor
-    fields = ['name', 'contact', 'designation']
+    fields = ['name', 'contact', 'designation', 'logo', 'address']
 
     def get_context_data(self, **kwargs):
         context = super(DoctorCreateView, self).get_context_data(**kwargs)
@@ -163,7 +196,7 @@ class DoctorCreateView(LoginRequiredMixin, CreateView):
 
 class DoctorUpdateView(LoginRequiredMixin, UpdateView):
     model = Doctor
-    fields = ['name', 'contact', 'designation']
+    fields = ['name', 'contact', 'designation', 'logo', 'address']
 
     def get_context_data(self, **kwargs):
         context = super(DoctorUpdateView, self).get_context_data(**kwargs)
@@ -258,7 +291,7 @@ def appointments(request, doc_id):
 
     all_appointments = json.dumps(appointments_array)
 
-    next_appointments = current_appointments.filter(date__gte=datetime.now()).order_by('date')
+    next_appointments = current_appointments.filter(date__gte=timezone.now()).order_by('date')
     context = {'appointments_json': all_appointments, 'title': 'Appointment', 'doctor': doctor,
                'form': appointment_form,
                'next_appointments': next_appointments, 'appointments': current_appointments}
@@ -281,7 +314,7 @@ class InvoiceDetailView(LoginRequiredMixin, DetailView):
         sub_total = self.get_object().service_set.aggregate(Sum('amount'))['amount__sum']
         sub_total = sub_total if sub_total else 0
         context['sub_total'] = sub_total
-        context['balance'] = self.get_object().deposit - context['sub_total']
+        context['due'] = sub_total - self.get_object().deposit
         return context
 
 
@@ -298,7 +331,7 @@ class InvoiceSlipView(LoginRequiredMixin, DetailView):
 @login_required
 def export_data(request):
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="PatientData' + datetime.now().astimezone().strftime(
+    response['Content-Disposition'] = 'attachment; filename="PatientData' + timezone.now().astimezone().strftime(
         '%Y%m%d_%H%M%S') + '.csv"'
     writer = csv.writer(response)
 

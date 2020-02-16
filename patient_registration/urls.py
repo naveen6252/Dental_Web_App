@@ -6,7 +6,7 @@ from .views import PatientCreateView, AppointmentCreateView, PatientListView, Pa
     AppointmentUpdateView, InvoiceDetailView, InvoiceSlipView, AppointmentDeleteView
 
 urlpatterns = [
-    path('', views.home, name='patient-registration-home'),
+    path('dashboard/', views.home, name='patient-registration-dashboard'),
     path('patient/new/', PatientCreateView.as_view(), name='patient-registration-add-patient'),
     path('treatment/new/', TreatmentCreateView.as_view(), name='patient-registration-add-treatment'),
     path('doctor/new', DoctorCreateView.as_view(), name='patient-registration-add-doctor'),
@@ -27,7 +27,7 @@ urlpatterns = [
     path('appointment/<int:pk>/update/', AppointmentUpdateView.as_view(),
          name='patient-registration-update-appointment'),
     path('appointment/doctor/<int:doc_id>/', views.appointments, name='patient-registration-view-appointment'),
-    path('appointment/doctor/', views.doctor_select, name='patient-registration-select-doctor'),
+    path('', views.doctor_select, name='patient-registration-select-doctor'),
     path('data/export/all', views.export_data, name='export-all-data'),
     path('appointment/<int:pk>/delete/', AppointmentDeleteView.as_view(),
          name='patient-registration-delete-appointment'),

@@ -1,38 +1,56 @@
 {% extends "patient_registration/base.html" %}
 {% block content %}
-    <div class="container-fluid" id="invoice_print">
-        <div class="row clearfix">
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="body">
-                        <h5><strong>Invoice ID: </strong> #{{ object.id }}</h5>
-                        <hr>
-                        <div class="row">
-                            <div class="col-md-6 col-sm-6">
-                                <address>
-                                    <strong>{{ object.patient.name }}</strong><br>
-                                    {{ object.patient.address }}<br>
-                                    <abbr title="Phone">P:</abbr> {{ object.patient.mobile }}
-                                </address>
-                            </div>
-                            <div class="col-md-6 col-sm-6 text-right">
-                                <p class="mb-0"><strong>Invoice
-                                    Date: </strong> {{ object.invoice_date|date:"j M Y P" }}</p>
-                                </p>
-                            </div>
+    <div class="container-fluid">
+        <div class="row clearfix" id="invoice_print">
+            <div class="card">
+                <div class="body">
+                    <img src="{{ object.doctor.logo.url }}"/>
+                    <h5 class="text-center bg-black p-1 mt-1">{{ object.doctor.address }}</h5>
+                    <div class="row">
+                        <div class="col-md-4 col-sm-4">
+                            <h5><strong>Invoice ID: </strong> #{{ object.id }}</h5>
+                        </div>
+                        <div class="col-md-8 col-sm-8 text-right">
+                            <h5>
+                                <strong>Invoice Date: </strong>
+                                {{ object.invoice_date|date:"d-m-Y G:i A" }}
+                            </h5>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-2 col-sm-2">
+                            <strong>Name</strong>
+                        </div>
+                        <div class="col-md-10 col-sm-10">
+                            : {{ object.patient.name }}
                         </div>
                     </div>
                     <div class="row">
+                        <div class="col-md-2 col-sm-2">
+                            <strong>Address</strong>
+                        </div>
+                        <div class="col-md-10 col-sm-10">
+                            : {{ object.patient.address }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2 col-sm-2">
+                            <strong>Phone</strong>
+                        </div>
+                        <div class="col-md-10 col-sm-10">
+                            : {{ object.patient.mobile }}
+                        </div>
+                    </div>
+                    <div class="row mt-3">
                         <div class="col-md-12">
                             <div class="table-responsive">
-                                <table class="table table-hover c_table theme-color">
+                                <table class="table table-hover">
                                     <thead>
                                     <tr>
                                         <th>#</th>
                                         <th>Treatment</th>
-                                        <th>Tooth</th>
                                         <th>Laboratory</th>
-                                        <th class="hidden-sm-down">Description</th>
                                         <th class="hidden-sm-down">Amount</th>
                                     </tr>
                                     </thead>
@@ -41,9 +59,7 @@
                                         <tr>
                                             <td>{{ service.id }}</td>
                                             <td>{{ service.treatment }}</td>
-                                            <td>{{ service.tooth }}</td>
                                             <td>{{ service.laboratory_name }}</td>
-                                            <td class="hidden-sm-down">{{ service.description }}</td>
                                             <td class="hidden-sm-down">&#x20b9;{{ service.amount }}</td>
                                         </tr>
                                     {% endfor %}
@@ -52,42 +68,43 @@
                             </div>
                         </div>
                     </div>
-                    <div class="body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h5>Note</h5>
-                                <p>{{ object.note }}</p>
-                            </div>
-                            <div class="col-md-6 text-right">
-                                <ul class="list-unstyled">
-                                    <li><strong>Sub-Total: </strong> &#x20b9; {{ sub_total }}</li>
-                                    <li><strong>Deposit:</strong> &#x20b9; {{ object.deposit }}</li>
-                                    {% if balance < 0 %}
-                                        <li class="text-danger"><strong>Balance:</strong> &#x20b9; {{ balance }}
-                                        </li>
-                                    {% else %}
-                                        <li class="text-green"><strong>Balance:</strong> &#x20b9; {{ balance }}
-                                        </li>
-                                    {% endif %}
-                                </ul>
-                                <button class="btn btn-info" onclick="printDiv('invoice_print')"><i
-                                        class="zmdi zmdi-print"></i></button>
-                            </div>
+                    <hr class="mt-0">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Note: </h5>
+                            <p>{{ object.note }}</p>
+                        </div>
+                        <div class="col-md-6 text-right">
+                            <ul class="list-unstyled">
+                                <li><strong>Sub-Total: </strong> &#x20b9; {{ sub_total }}</li>
+                                <li><strong>Deposit:</strong> &#x20b9; {{ object.deposit }}</li>
+                                {% if due > 0 %}
+                                    <li class="text-danger"><strong>Due:</strong> &#x20b9; {{ due }}
+                                    </li>
+                                {% else %}
+                                    <li class="text-green"><strong>Due:</strong> &#x20b9; {{ due }}
+                                    </li>
+                                {% endif %}
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        <div class="row mt-0">
+            <div class="m-auto">
+                <button class="btn btn-info" onclick="printDiv('invoice_print')">
+                    <i class="zmdi zmdi-print"></i>
+                </button>
+            </div>
+        </div>
     </div>
     <script>
         function printDiv(divName) {
-            var printContents = document.getElementById(divName).innerHTML;
-            var originalContents = document.body.innerHTML;
-
+            let printContents = document.getElementById(divName).innerHTML;
+            let originalContents = document.body.innerHTML;
             document.body.innerHTML = printContents;
-
             window.print();
-
             document.body.innerHTML = originalContents;
         }
     </script>

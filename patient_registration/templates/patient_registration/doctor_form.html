@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 {% block content %}
     <div class="row">
-        <form class="card auth_form" method="POST">
+        <form class="card auth_form" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="body">
                 <legend class="border-bottom mb-4">Doctor</legend>

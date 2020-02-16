@@ -10,6 +10,8 @@ class Doctor(models.Model):
     phone_regex = RegexValidator(regex=r'^\+?1?\d{9,12}$',
                                  message="Phone number must be entered in the format: '+919999999'")
     name = models.CharField(max_length=50)
+    logo = models.ImageField(default='default_logo.jpg', upload_to='doctor_logo')
+    address = models.TextField()
     contact = models.CharField(max_length=12, validators=[phone_regex])
     designation = models.CharField(max_length=20)
 

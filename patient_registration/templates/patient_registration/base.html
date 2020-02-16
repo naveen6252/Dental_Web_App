@@ -46,12 +46,15 @@
 <!-- Right Icon menu Sidebar -->
 <div class="navbar-right">
     <ul class="navbar-nav">
-        <li><a href="{% url 'export-all-data' %}" class="mega-menu" title="Export All Data"><i
-                class="zmdi zmdi-cloud-download"></i></a></li>
-
+        {% if user.is_superuser %}
+            <li><a href="{% url 'export-all-data' %}" class="mega-menu" title="Export All Data"><i
+                    class="zmdi zmdi-cloud-download"></i></a></li>
+        {% endif %}
         <li><a href="javascript:void(0);" class="js-right-sidebar" title="Setting"><i
                 class="zmdi zmdi-settings zmdi-hc-spin"></i></a></li>
-        <li><a href="/admin" class="mega-menu" title="Admin Page"><i class="zmdi zmdi-android"></i></a></li>
+        {% if user.is_superuser %}
+            <li><a href="/admin" class="mega-menu" title="Admin Page"><i class="zmdi zmdi-android"></i></a></li>
+        {% endif %}
         <li><a href="{% url 'logout' %}" class="mega-menu" title="Sign Out"><i class="zmdi zmdi-power"></i></a></li>
     </ul>
 </div>
@@ -65,15 +68,16 @@
     </div>
     <div class="menu">
         <ul class="list">
-
-            {% if title == 'Dashboard' %}
-                <li class="active open">
-                    {% else %}
-                <li>
-            {% endif %}
-            <a href="/"><i class="zmdi zmdi-home"></i><span>Dashboard</span></a>
+            {% if user.is_superuser %}
+                {% if title == 'Dashboard' %}
+                    <li class="active open">
+                        {% else %}
+                    <li>
+                {% endif %}
+            <a href="{% url 'patient-registration-dashboard' %}"><i
+                    class="zmdi zmdi-home"></i><span>Dashboard</span></a>
             </li>
-
+            {% endif %}
             {% if title == 'Patient Registration' %}
                 <li class="active open">
                     {% else %}
