@@ -27,7 +27,7 @@
                             {% else %}
                                 <div class="header">
                                     <h2>Next<strong> Appointments</strong></h2>
-                                <hr>
+                                    <hr>
                                 </div>
                             {% endif %}
                             {% for appointment in next_appointments %}
@@ -46,6 +46,7 @@
                             {% endfor %}
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -118,12 +119,26 @@
 {% endblock content %}
 
 {% block initial_script %}
+    <script>
+        $(document).ready(function () {
+            $('select[name=patient]').attr('data-live-search', 'true')
+        });
+    </script>
     <script src="{% static 'patient_registration/js/pages/calendar/calendar.js' %}"></script>
     <script src="{% static 'patient_registration/plugins/momentjs/moment.js' %}"></script>
     <script src="{% static 'patient_registration/plugins/bootstrap-material-datetimepicker/js/bootstrap-material-datetimepicker.js' %}"></script>
+    <script src="{% static 'patient_registration/plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.js' %}"></script>
+    <script src="{% static 'patient_registration/plugins/jquery-inputmask/jquery.inputmask.bundle.js' %}"></script>
+    <script src="{% static 'patient_registration/plugins/multi-select/js/jquery.multi-select.js' %}"></script>
+    <script src="{% static 'patient_registration/plugins/jquery-spinner/js/jquery.spinner.js' %}"></script>
+    <script src="{% static 'patient_registration/plugins/bootstrap-tagsinput/bootstrap-tagsinput.js' %}"></script>
+    <script src="{% static 'patient_registration/plugins/nouislider/nouislider.js' %}"></script>
+    <script src="{% static 'patient_registration/plugins/select2/select2.min.js' %}"></script>
+
 {% endblock initial_script %}
 
 {% block final_script %}
     <script src="{% static 'patient_registration/bundles/fullcalendarscripts.bundle.js' %}"></script>
     <script src="{% static 'patient_registration/js/pages/forms/basic-form-elements.js' %}"></script>
+    <script src="{% static 'patient_registration/js/pages/forms/advanced-form-elements.js' %}"></script>
 {% endblock final_script %}
