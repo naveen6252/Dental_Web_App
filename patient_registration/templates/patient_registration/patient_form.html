@@ -1,4 +1,5 @@
 {% extends "patient_registration/base.html" %}
+{% load static %}
 {% load crispy_forms_tags %}
 {% block content %}
     <div class="row">
@@ -13,3 +14,14 @@
         </form>
     </div>
 {% endblock content %}
+{% block initial_script %}
+
+{% endblock initial_script %}
+
+{% block final_script %}
+    <script>
+        $(document).ready(function () {
+            $('input[name=birth_date]').attr('placeholder', 'Ex: 1992-12-31')
+        });
+    </script>
+{% endblock final_script %}

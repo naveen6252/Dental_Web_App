@@ -31,5 +31,6 @@ urlpatterns = [
     path('data/export/all', views.export_data, name='export-all-data'),
     path('appointment/<int:pk>/delete/', AppointmentDeleteView.as_view(),
          name='patient-registration-delete-appointment'),
+    path('patient/Birth-Day/', views.birth_days, name='patient-registration-view-birth-days'),
 
 ]

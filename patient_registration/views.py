@@ -92,7 +92,7 @@ class PatientDetailView(LoginRequiredMixin, DetailView):
 
 class PatientCreateView(LoginRequiredMixin, CreateView):
     model = Patient
-    fields = ['name', 'image', 'mobile', 'age', 'sex', 'address']
+    fields = ['name', 'image', 'mobile', 'sex', 'birth_date', 'address']
 
     def form_valid(self, form):
         number = Patient.objects.filter(register_date__date=timezone.now().date()).count() + 1
@@ -119,7 +119,7 @@ class TreatmentCreateView(LoginRequiredMixin, CreateView):
 
 class PatientUpdateView(LoginRequiredMixin, UpdateView):
     model = Patient
-    fields = ['patient_id', 'name', 'image', 'mobile', 'age', 'sex', 'address']
+    fields = ['patient_id', 'name', 'image', 'mobile', 'age', 'sex', 'birth_date', 'address']
 
     def get_context_data(self, **kwargs):
         context = super(PatientUpdateView, self).get_context_data(**kwargs)
@@ -359,3 +359,14 @@ def export_data(request):
                '', '', '', '', '', '']
         writer.writerow(row)
     return response
+
+
+@login_required
+def birth_days(request):
+    patients = Patient.objects.all()
+    today_date = timezone.now()
+    tomorrow_date = timezone.now() + timedelta(days=1)
+    today_birth_day = patients.filter(birth_date__day=today_date.day, birth_date__month=today_date.month)
+    tomorrow_birth_day = patients.filter(birth_date__day=tomorrow_date.day, birth_date__month=tomorrow_date.month)
+    context = {'title': 'BirthDays', 'today_patient': today_birth_day, 'tomorrow_patient': tomorrow_birth_day}
+    return render(request, 'patient_registration/patient_birth_days.html', context)

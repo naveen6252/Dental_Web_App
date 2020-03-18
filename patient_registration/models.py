@@ -34,9 +34,9 @@ class Patient(models.Model):
     image = models.ImageField(default='default.jpg', upload_to='profile_pics')
     name = models.CharField(max_length=50)
     mobile = models.CharField(max_length=12, validators=[phone_regex])
-    age = models.IntegerField()
     sex = models.IntegerField(choices=gender_choices)
     address = models.TextField()
+    birth_date = models.DateField()
     register_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -68,6 +68,10 @@ class Patient(models.Model):
     @property
     def due_amount(self):
         return self.total_service - self.total_deposit
+
+    @property
+    def age(self):
+        return timezone.now().date().year - self.birth_date.year
 
 
 class Invoice(models.Model):
