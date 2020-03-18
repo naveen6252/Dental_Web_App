@@ -40,7 +40,7 @@ class Patient(models.Model):
     register_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return str(self.patient_id)
+        return str(self.patient_id) + '-' + self.name
 
     def get_absolute_url(self):
         return reverse('patient-registration-view-patient', kwargs={'pk': self.id})
