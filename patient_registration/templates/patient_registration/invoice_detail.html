@@ -13,7 +13,7 @@
                         <div class="col-md-8 col-sm-8 text-right">
                             <h5>
                                 <strong>Invoice Date: </strong>
-                                {{ object.invoice_date|date:"d-m-Y G:i A" }}
+                                {{ object.invoice_date|date:"d-m-Y g:i A" }}
                             </h5>
                         </div>
                     </div>
@@ -76,13 +76,26 @@
                         </div>
                         <div class="col-md-6 text-right">
                             <ul class="list-unstyled">
-                                <li><strong>Sub-Total: </strong> &#x20b9; {{ sub_total }}</li>
-                                <li><strong>Deposit:</strong> &#x20b9; {{ object.deposit }}</li>
-                                {% if due > 0 %}
-                                    <li class="text-danger"><strong>Due:</strong> &#x20b9; {{ due }}
+                                <li><strong>Bill-Total: </strong> &#x20b9; {{ bill_total }}</li>
+                                <li><strong>Bill Deposit:</strong> &#x20b9; {{ object.deposit }}</li>
+                                {% if bill_due > 0 %}
+                                    <li class="text-danger"><strong>Bill Due:</strong> &#x20b9; {{ bill_due }}
                                     </li>
                                 {% else %}
-                                    <li class="text-green"><strong>Due:</strong> &#x20b9; {{ due }}
+                                    <li class="text-green"><strong>Bill Due:</strong> &#x20b9; {{ bill_due }}
+                                    </li>
+                                {% endif %}
+                            </ul>
+                            <ul class="list-unstyled">
+                                <li><strong>Amount-Total: </strong> &#x20b9; {{ object.patient.total_service }}</li>
+                                <li><strong>Total Deposit:</strong> &#x20b9; {{ object.patient.total_deposit }}</li>
+                                {% if object.patient.due_amount > 0 %}
+                                    <li class="text-danger"><strong>Bill Due:</strong>
+                                        &#x20b9; {{ object.patient.due_amount }}
+                                    </li>
+                                {% else %}
+                                    <li class="text-green"><strong>Bill Due:</strong>
+                                        &#x20b9; {{ object.patient.due_amount }}
                                     </li>
                                 {% endif %}
                             </ul>

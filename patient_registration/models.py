@@ -125,3 +125,22 @@ class Appointment(models.Model):
 
     def get_absolute_url(self):
         return reverse('patient-registration-view-appointment', kwargs={'doc_id': self.doctor.id})
+
+
+class ExpenseType(models.Model):
+    type = models.CharField(max_length=50)
+
+    def __str__(self):
+        return str(self.type)
+
+
+class Expense(models.Model):
+    type = models.ForeignKey(ExpenseType, on_delete=models.CASCADE)
+    amount = models.FloatField()
+    date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return '{0} {1}'.format(self.type, self.date)
+
+    def get_absolute_url(self):
+        return reverse('patient-registration-view-expense')

@@ -5,9 +5,14 @@ from django.http import HttpResponse
 from django.urls import reverse
 from django.db.models import Sum, Count
 from django.db.models.functions import TruncMonth
-from .models import Patient, Doctor, Appointment, Service, Invoice, Treatment
+from .models import Patient, Doctor, Appointment, Service, Invoice, Treatment, Expense
 from datetime import timedelta
 from django.utils import timezone
+from social_django.utils import load_strategy
+from googleapiclient.discovery import build
+from google_auth_oauthlib.flow import InstalledAppFlow
+from .social_google_credentials import Credentials
+import requests
 import json
 import csv
 from .forms import InvoiceCreateForm, ServiceCreateForm, AppointmentCreateForm, PatientAppointmentForm
@@ -48,8 +53,8 @@ def home(request):
     mom_amount = Service.objects.annotate(month=TruncMonth('service_date')).values('month').annotate(
         amount=Sum('amount')).values('month', 'amount')
 
-    deposit_by_doctor = Invoice.objects.values('doctor__name').annotate(deposit=Sum('deposit'))
-    amount_by_doctor = Service.objects.values('invoice__doctor__name').annotate(amount=Sum('amount'))
+    deposit_by_doctor = Invoice.objects.values('service__treatment').annotate(deposit=Sum('deposit'))
+    amount_by_doctor = Service.objects.values('treatment').annotate(amount=Sum('amount'))
 
     appointment_by_doctor = Appointment.objects.values('doctor').annotate(appointment=Count('patient'))
 
@@ -119,7 +124,7 @@ class TreatmentCreateView(LoginRequiredMixin, CreateView):
 
 class PatientUpdateView(LoginRequiredMixin, UpdateView):
     model = Patient
-    fields = ['patient_id', 'name', 'image', 'mobile', 'age', 'sex', 'birth_date', 'address']
+    fields = ['patient_id', 'name', 'image', 'mobile', 'sex', 'birth_date', 'address']
 
     def get_context_data(self, **kwargs):
         context = super(PatientUpdateView, self).get_context_data(**kwargs)
@@ -311,10 +316,10 @@ class InvoiceDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(InvoiceDetailView, self).get_context_data(**kwargs)
         context['title'] = 'Invoice'
-        sub_total = self.get_object().service_set.aggregate(Sum('amount'))['amount__sum']
-        sub_total = sub_total if sub_total else 0
-        context['sub_total'] = sub_total
-        context['due'] = sub_total - self.get_object().deposit
+        bill_total = self.get_object().service_set.aggregate(Sum('amount'))['amount__sum']
+        bill_total = bill_total if bill_total else 0
+        context['bill_total'] = bill_total
+        context['bill_due'] = bill_total - self.get_object().deposit
         return context
 
 
@@ -370,3 +375,81 @@ def birth_days(request):
     tomorrow_birth_day = patients.filter(birth_date__day=tomorrow_date.day, birth_date__month=tomorrow_date.month)
     context = {'title': 'BirthDays', 'today_patient': today_birth_day, 'tomorrow_patient': tomorrow_birth_day}
     return render(request, 'patient_registration/patient_birth_days.html', context)
+
+
+class ExpenseCreateView(LoginRequiredMixin, CreateView):
+    model = Expense
+    fields = ['type', 'amount', 'date']
+
+    def get_context_data(self, **kwargs):
+        context = super(ExpenseCreateView, self).get_context_data(**kwargs)
+        context['title'] = 'Expense'
+        return context
+
+
+class ExpenseUpdateView(LoginRequiredMixin, UpdateView):
+    model = Expense
+    fields = ['type', 'amount', 'date']
+
+    def get_context_data(self, **kwargs):
+        context = super(ExpenseUpdateView, self).get_context_data(**kwargs)
+        context['title'] = 'Expense'
+        return context
+
+
+class ExpenseListView(LoginRequiredMixin, ListView):
+    model = Expense
+
+    def get_context_data(self, **kwargs):
+        context = super(ExpenseListView, self).get_context_data(**kwargs)
+
+        context['title'] = 'Expense'
+        return context
+
+
+@login_required
+def export_contacts(request):
+    social = request.user.social_auth.get(provider='google-oauth2')
+
+    service = build('people', 'v1', credentials=Credentials(social))
+    people = service.people()
+    temp_people = people.connections().list(resourceName='people/me', personFields='names').execute()
+
+    temp_page_token = temp_people.get("nextPageToken")
+    connection_list = temp_people["connections"]
+
+    while temp_page_token:
+        temp_people = people.connections().list(resourceName='people/me', pageToken=temp_page_token,
+                                                personFields='names').execute()
+        connection_list += temp_people["connections"]
+        temp_page_token = temp_people.get("nextPageToken")
+
+    existing_patient_contact = []
+
+    for val in connection_list:
+        if val.get('names'):
+            for name in val.get('names'):
+                if name.get("honorificPrefix"):
+                    existing_patient_contact.append(name.get("honorificPrefix"))
+
+    for patient in Patient.objects.all():
+        if str(patient.patient_id) not in existing_patient_contact:
+            people.createContact(
+                body={
+                    "names": [
+                        {"displayName": patient.name, "givenName": patient.name,
+                         "honorificPrefix": str(patient.patient_id)}],
+                    "phoneNumbers": [
+                        {
+                            'value': patient.mobile
+                        }
+                    ],
+                    'organizations': [{
+                        'name': 'Harbor-dental',
+                        'title': 'Patient'
+                    }]
+                }
+            ).execute()
+
+    return render(request, 'patient_registration/export-contact.html',
+                  {'title': 'Dashboard', 'data': 'Contacts Exported Successfully!'})

@@ -71,42 +71,7 @@ function initC3Chart() {
 
         $(document).ready(function () {
             var chart = c3.generate({
-                bindto: '#appointment-pie', // id of chart wrapper
-                data: {
-                    columns: [
-                        ['Doctor 1', 30],
-                        ['Doctor 2', 10],
-                        ['Doctor 3', 5],
-                    ],
-                    type: 'pie', // default type of chart
-                    colors: {
-                        'Doctor 1': Aero.colors["lime"],
-                        'Doctor 2': Aero.colors["teal"],
-                        'Doctor 3': Aero.colors["yellow-dark"],
-                    },
-
-                },
-                pie: {
-                    label: {
-                        format: function (value, ratio, id) {
-                            return value
-                        }
-                    }
-                },
-                axis: {},
-                legend: {
-                    show: true, //hide legend
-                },
-                padding: {
-                    bottom: 0,
-                    top: 0
-                },
-            });
-        });
-
-        $(document).ready(function () {
-            var chart = c3.generate({
-                bindto: '#doctor-chart', // id of chart wrapper
+                bindto: '#treatment-chart', // id of chart wrapper
                 data: {
                     columns: [
                         // each columns data
@@ -129,7 +94,7 @@ function initC3Chart() {
                     x: {
                         type: 'category',
                         // name of each category
-                        categories: ['Doctor 1', 'Doctor 2', 'Doctor 3', 'Doctor 4']
+                        categories: ['Treatment 1', 'Treatment 2', 'Treatment 3', 'Treatment 4']
                     },
                 },
                 bar: {
@@ -145,89 +110,116 @@ function initC3Chart() {
             });
         });
 
+        $(document).ready(function () {
+            var chart = c3.generate({
+                bindto: '#appointment-pie', // id of chart wrapper
+                data: {
+                    columns: [
+                        ['Doctor 1', 30],
+                        ['Doctor 2', 10],
+                        ['Doctor 3', 5],
+                    ],
+                    type: 'pie', // default type of chart
+
+
+                },
+                pie: {
+                    label: {
+                        format: function (value, ratio, id) {
+                            return value
+                        }
+                    }
+                },
+                axis: {},
+                legend: {
+                    show: true, //hide legend
+                },
+                padding: {
+                    bottom: 0,
+                    top: 0
+                },
+            });
+        });
+
+        $(document).ready(function () {
+            var chart = c3.generate({
+                bindto: '#expense-pie', // id of chart wrapper
+                data: {
+                    columns: [
+                        ['Rent', 50000],
+                        ['Salary', 60000],
+                        ['Material', 10000],
+                        ['Medicine', 40000],
+                        ['Lab Bills', 5000],
+                        ['Government Bills', 5000],
+                        ['Accessories', 250000],
+                        ['Enhancement', 12000],
+                    ],
+                    type: 'pie',
+
+                },
+                pie: {
+                    label: {
+                        format: function (value, ratio, id) {
+                            return value
+                        }
+                    }
+                },
+                axis: {},
+                legend: {
+                    show: false, //hide legend
+                },
+                padding: {
+                    bottom: 0,
+                    top: 0
+                },
+            });
+        });
+
+        $(document).ready(function () {
+            var chart = c3.generate({
+                bindto: '#expense-trend',
+                data: {
+                    columns: [
+                        // each columns data
+                        ['data1', 12000, 12000, 15000, 1000, 8000, 20000, 25000, 18000, 26000, 30000, 60000, 20000]
+                    ],
+                    type: 'line', // default type of chart
+                    colors: {
+                        'data1': "#3866a6"
+                    },
+                    names: {
+                        'data1': 'Expense Amount'
+                    }
+                },
+                axis: {
+                    x: {
+                        type: 'category',
+                        // name of each category
+                        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+                    },
+                },
+                bar: {
+                    width: 60,
+                },
+                legend: {
+                    show: true, //hide legend
+                },
+                padding: {
+                    bottom: 0,
+                    top: 0,
+                },
+                grid: {
+                    x: {
+                        show: true
+                    },
+                    y: {
+                        show: true
+                    }
+                },
+            });
+        });
+
+
     }, 500);
 }
-
-setTimeout(function () {
-    "use strict";
-    var mapData = {
-        "US": 298,
-        "SA": 200,
-        "AU": 760,
-        "IN": 2000000,
-        "GB": 120,
-    };
-    if ($('#world-map-markers').length > 0) {
-        $('#world-map-markers').vectorMap({
-            map: 'world_mill_en',
-            backgroundColor: 'transparent',
-            borderColor: '#fff',
-            borderOpacity: 0.25,
-            borderWidth: 0,
-            color: '#e6e6e6',
-            regionStyle: {
-                initial: {
-                    fill: '#f4f4f4'
-                }
-            },
-
-            markerStyle: {
-                initial: {
-                    r: 5,
-                    'fill': '#fff',
-                    'fill-opacity': 1,
-                    'stroke': '#000',
-                    'stroke-width': 1,
-                    'stroke-opacity': 0.4
-                },
-            },
-
-            markers: [{
-                latLng: [21.00, 78.00],
-                name: 'INDIA : 350'
-
-            },
-                {
-                    latLng: [-33.00, 151.00],
-                    name: 'Australia : 250'
-
-                },
-                {
-                    latLng: [36.77, -119.41],
-                    name: 'USA : 250'
-
-                },
-                {
-                    latLng: [55.37, -3.41],
-                    name: 'UK   : 250'
-
-                },
-                {
-                    latLng: [25.20, 55.27],
-                    name: 'UAE : 250'
-
-                }],
-
-            series: {
-                regions: [{
-                    values: {
-                        "US": '#49c5b6',
-                        "SA": '#667add',
-                        "AU": '#50d38a',
-                        "IN": '#60bafd',
-                        "GB": '#ff758e',
-                    },
-                    attribute: 'fill'
-                }]
-            },
-            hoverOpacity: null,
-            normalizeFunction: 'linear',
-            zoomOnScroll: false,
-            scaleColors: ['#000000', '#000000'],
-            selectedColor: '#000000',
-            selectedRegions: [],
-            enableZoom: false,
-            hoverColor: '#fff',
-        });
-    }
-}, 800);

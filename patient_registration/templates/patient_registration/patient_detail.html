@@ -8,15 +8,31 @@
                     <div class="body">
                         <h2>Patient Detail</h2>
                         <hr>
-                        <h5><a href="{% url 'patient-registration-view-slip' object.id %}" title="Get Slip">Patient
-                            ID: {{ object.patient_id }}</a></h5>
-                        <h5 class="price mt-0">Current Due Amount:
-                            {% if object.due_amount > 0 %}
-                                <span class="text-danger text-center">&#x20b9; {{ object.due_amount }}</span>
-                            {% else %}
-                                <span class="text-green text-center">&#x20b9; {{ object.due_amount }}</span>
-                            {% endif %}
-                        </h5>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <h5>
+                                        <a href="{% url 'patient-registration-view-slip' object.id %}" title="Get Slip">Patient
+                                            ID: {{ object.patient_id }}</a>
+                                    </h5>
+                                    <h5 class="price mt-0">Current Due Amount:
+                                        {% if object.due_amount > 0 %}
+                                            <span class="text-danger text-center">&#x20b9; {{ object.due_amount }}</span>
+                                        {% else %}
+                                            <span class="text-green text-center">&#x20b9; {{ object.due_amount }}</span>
+                                        {% endif %}
+                                    </h5>
+                                </div>
+                                <div class="col-sm-4">
+
+                                    <button class="btn btn-info" onclick="printDiv('invoice_print')">
+                                        <i class="zmdi zmdi-print"></i>
+                                    </button>
+
+                                </div>
+                            </div>
+                        </div>
+
                         <ul class="nav nav-tabs">
                             <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#personal-detail">Personal
                                 Detail</a>
@@ -141,6 +157,59 @@
             </div>
         </div>
     </div>
+    <script>
+        function printDiv(divName) {
+            var printContents = '<div class="body" id="invoice_print">\n' +
+                '                    <div class="row">\n' +
+                '                        <div class="col-md-2 col-sm-2">\n' +
+                '                            <strong>Name</strong>\n' +
+                '                        </div>\n' +
+                '                        <div class="col-md-10 col-sm-10">\n' +
+                '                            : {{ object.name }}\n' +
+                '                        </div>\n' +
+                '                    </div>\n' +
+                '                    <div class="row">\n' +
+                '                        <div class="col-md-2 col-sm-2">\n' +
+                '                            <strong>Age/Sex</strong>\n' +
+                '                        </div>\n' +
+                '                        <div class="col-md-10 col-sm-10">\n' +
+                '                            : {{ object.age }}/{{ object.get_sex_display }}\n' +
+                '                        </div>\n' +
+                '                    </div>\n' +
+                '                    <div class="row">\n' +
+                '                        <div class="col-md-2 col-sm-2">\n' +
+                '                            <strong>Address</strong>\n' +
+                '                        </div>\n' +
+                '                        <div class="col-md-10 col-sm-10">\n' +
+                '                            : {{ object.address}}\n' +
+                '                        </div>\n' +
+                '                    </div>\n' +
+                '                    <div class="row">\n' +
+                '                        <div class="col-md-2 col-sm-2">\n' +
+                '                            <strong>Mobile No</strong>\n' +
+                '                        </div>\n' +
+                '                        <div class="col-md-10 col-sm-10">\n' +
+                '                            : {{ object.mobile }}\n' +
+                '                        </div>\n' +
+                '                    </div>\n' +
+                '                    <div class="row">\n' +
+                '                        <div class="col-md-2 col-sm-2">\n' +
+                '                            <strong>Patient ID</strong>\n' +
+                '                        </div>\n' +
+                '                        <div class="col-md-10 col-sm-10">\n' +
+                '                            : {{ object.patient_id }}\n' +
+                '                        </div>\n' +
+                '                    </div>\n' +
+                '                </div>';
+            var originalContents = document.body.innerHTML;
+
+            document.body.innerHTML = printContents;
+
+            window.print();
+
+            document.body.innerHTML = originalContents;
+        }
+    </script>
 {% endblock content %}
 
 {% block initial_script %}

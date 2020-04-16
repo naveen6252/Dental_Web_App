@@ -1,9 +1,9 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 from .views import PatientCreateView, AppointmentCreateView, PatientListView, PatientDeleteView, PatientDetailView, \
     PatientUpdateView, ServiceCreateView, DoctorCreateView, DoctorListView, DoctorDeleteView, DoctorUpdateView, \
-    InvoiceCreateView, TreatmentCreateView, \
-    AppointmentUpdateView, InvoiceDetailView, InvoiceSlipView, AppointmentDeleteView
+    InvoiceCreateView, TreatmentCreateView, ExpenseListView, ExpenseUpdateView, \
+    AppointmentUpdateView, InvoiceDetailView, InvoiceSlipView, AppointmentDeleteView, ExpenseCreateView
 
 urlpatterns = [
     path('dashboard/', views.home, name='patient-registration-dashboard'),
@@ -32,5 +32,9 @@ urlpatterns = [
     path('appointment/<int:pk>/delete/', AppointmentDeleteView.as_view(),
          name='patient-registration-delete-appointment'),
     path('patient/Birth-Day/', views.birth_days, name='patient-registration-view-birth-days'),
+    path('expense/new/', ExpenseCreateView.as_view(), name='patient-registration-add-expense'),
+    path('expense/', ExpenseListView.as_view(), name='patient-registration-view-expense'),
+    path('expense/<int:pk>/update/', ExpenseUpdateView.as_view(), name='patient-registration-update-expense'),
+    path('export/contact/', views.export_contacts, name='patient-registration-export-contact'),
 
 ]

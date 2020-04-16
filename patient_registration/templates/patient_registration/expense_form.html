@@ -1,0 +1,30 @@
+{% extends "patient_registration/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="row">
+        <form class="card auth_form" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="body">
+                <legend class="border-bottom mb-4">Expense</legend>
+                {{ form|crispy }}
+                <button class="btn btn-primary btn-block" type="submit">Submit
+                </button>
+            </div>
+        </form>
+    </div>
+{% endblock content %}
+{% block initial_script %}
+    <script>
+        $(document).ready(function () {
+            $('input[name="date"]').addClass('datetimepicker')
+        });
+    </script>
+    <script src="{% static 'patient_registration/plugins/momentjs/moment.js' %}"></script>
+    <script src="{% static 'patient_registration/plugins/bootstrap-material-datetimepicker/js/bootstrap-material-datetimepicker.js' %}"></script>
+{% endblock initial_script %}
+
+
+{% block final_script %}
+    <script src="{% static 'patient_registration/js/pages/forms/basic-form-elements.js' %}"></script>
+{% endblock final_script %}

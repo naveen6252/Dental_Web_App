@@ -1,0 +1,78 @@
+{% extends "patient_registration/base.html" %}
+{% load static %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="body">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-sm-11">
+                                    <h2>Expenses List</h2>
+                                </div>
+                                <div class="col-sm-1 mt-0">
+                                    <a class="btn btn-info" href="{% url 'patient-registration-add-expense' %}"
+                                       title="Add Expense">
+                                        <i class="zmdi zmdi-collection-plus"></i></a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped table-hover js-basic-example dataTable">
+                                <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Expense Type</th>
+                                    <th>Amount</th>
+                                    <th>Date</th>
+                                    <th>Edit</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for expense in object_list %}
+                                    <tr>
+                                        <td>
+                                            {{ expense.id }}
+                                        </td>
+                                        <td>{{ expense.type }}</td>
+                                        <td>
+                                            <span class="text-green text-center">&#x20b9; {{ expense.amount }}</span>
+                                        </td>
+                                        <td>
+                                            {{ expense.date|date:"d-m-Y g:i A" }}
+                                        </td>
+                                        <td>
+                                            <a class="btn btn-block btn-primary"
+                                               href="{% url 'patient-registration-update-expense' expense.id %}"
+                                               title="Edit Expense"><i
+                                                    class="zmdi zmdi-comment-edit"></i></a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+{% block initial_script %}
+    <script src="{% static 'patient_registration/bundles/datatablescripts.bundle.js' %}"></script>
+    <script src="{% static 'patient_registration/plugins/jquery-datatable/buttons/dataTables.buttons.min.js' %}"></script>
+    <script src="{% static 'patient_registration/plugins/jquery-datatable/buttons/buttons.bootstrap4.min.js' %}"></script>
+    <script src="{% static 'patient_registration/plugins/jquery-datatable/buttons/buttons.colVis.min.js' %}"></script>
+    <script src="{% static 'patient_registration/plugins/jquery-datatable/buttons/buttons.flash.min.js' %}"></script>
+    <script src="{% static 'patient_registration/plugins/jquery-datatable/buttons/buttons.html5.min.js' %}"></script>
+    <script src="{% static 'patient_registration/plugins/jquery-datatable/buttons/buttons.print.min.js' %}"></script>
+{% endblock initial_script %}
+
+{% block final_script %}
+    <script src="{% static 'patient_registration/js/pages/tables/jquery-datatable.js' %}"></script>
+{% endblock %}

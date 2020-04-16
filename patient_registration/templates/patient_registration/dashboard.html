@@ -3,7 +3,7 @@
 {% block content %}
     <div class="container-fluid">
         <div class="row clearfix">
-            <div class="col-lg-4 col-md-6 col-sm-12">
+            <div class="col-lg-3 col-md-6 col-sm-12">
                 <div class="card widget_2 big_icon zmdi-account">
                     <div class="body">
                         <h6>Total Patients</h6>
@@ -15,7 +15,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-6 col-sm-12">
+            <div class="col-lg-3 col-md-6 col-sm-12">
                 <div class="card widget_2 big_icon sales">
                     <div class="body">
                         <h6>MTD Sales</h6>
@@ -28,7 +28,20 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-6 col-sm-12">
+            <div class="col-lg-3 col-md-6 col-sm-12">
+                <div class="card widget_2 big_icon sales">
+                    <div class="body">
+                        <h6>MTD Expenses</h6>
+                        <h2>&#x20b9; 12500</h2>
+                        <small>8% lower than last month</small>
+                        <div class="progress">
+                            <div class="progress-bar l-pink" role="progressbar" aria-valuenow="50" aria-valuemin="0"
+                                 aria-valuemax="100" style="width: 38%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-12">
                 <div class="card widget_2 big_icon email">
                     <div class="body">
                         <h6>Appointment</h6>
@@ -104,10 +117,10 @@
             <div class="col-lg-8 col-md-12">
                 <div class="card">
                     <div class="header">
-                        <h2><strong>Doctors </strong>Categorization</h2>
+                        <h2><strong>Treatment </strong>Categorization</h2>
                     </div>
                     <div class="body text-center">
-                        <div id="doctor-chart" class="c3_chart d_distribution"></div>
+                        <div id="treatment-chart" class="c3_chart d_distribution"></div>
                     </div>
                 </div>
             </div>
@@ -118,6 +131,28 @@
                     </div>
                     <div class="body text-center">
                         <div id="appointment-pie" class="c3_chart d_distribution"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row clearfix">
+            <div class="col-lg-4 col-md-12">
+                <div class="card">
+                    <div class="header">
+                        <h2><strong>Expense </strong>Categorization</h2>
+                    </div>
+                    <div class="body text-center">
+                        <div id="expense-pie" class="c3_chart d_distribution"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8 col-md-12">
+                <div class="card">
+                    <div class="header">
+                        <h2>Expense <strong>Trend</strong></h2>
+                    </div>
+                    <div class="body">
+                        <div id="expense-trend"></div>
                     </div>
                 </div>
             </div>

@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
-import django_heroku
+# import django_heroku
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -26,7 +26,7 @@ SECRET_KEY = '&3(mae)02yds-wdw10%54))&q@hd7#yaf%)#q5nf4y)-h_s7$='
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['harbor-dental.herokuapp.com']
+ALLOWED_HOSTS = ['harbor-dental.herokuapp.com', 'localhost']
 
 # Application definition
 
@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'social_django',
 ]
 
 MIDDLEWARE = [
@@ -128,4 +129,19 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 LOGIN_REDIRECT_URL = 'patient-registration-select-doctor'
 LOGIN_URL = 'login'
 
-django_heroku.settings(locals())
+# django_heroku.settings(locals())
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+CLIENT_SECRETS_FILE = "credentials.json"
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {'prompt': 'select_account'}
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '496509076289-u405n5n08ncqbqhr6rfbb5akg3s38lrc.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'vWB0NGAfKJCKRn8YXOetXaD-'
+SOCIAL_AUTH_URL_NAMESPACE = 'social'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ["https://www.googleapis.com/auth/contacts"]
+SOCIAL_AUTH_POSTGRES_JSONFIELD = True
