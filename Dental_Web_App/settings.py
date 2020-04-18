@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
-# import django_heroku
+import django_heroku
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -129,8 +129,6 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 LOGIN_REDIRECT_URL = 'patient-registration-select-doctor'
 LOGIN_URL = 'login'
 
-# django_heroku.settings(locals())
-
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.google.GoogleOAuth2',
     'django.contrib.auth.backends.ModelBackend',
@@ -145,3 +143,5 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'vWB0NGAfKJCKRn8YXOetXaD-'
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ["https://www.googleapis.com/auth/contacts"]
 SOCIAL_AUTH_POSTGRES_JSONFIELD = True
+
+django_heroku.settings(locals())
