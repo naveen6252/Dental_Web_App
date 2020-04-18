@@ -8,11 +8,10 @@ from django.db.models.functions import TruncMonth
 from .models import Patient, Doctor, Appointment, Service, Invoice, Treatment, Expense
 from datetime import timedelta
 from django.utils import timezone
-from social_django.utils import load_strategy
 from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
 from .social_google_credentials import Credentials
-import requests
+from google.auth.exceptions import RefreshError
+from social_django.utils import load_strategy
 import json
 import csv
 from .forms import InvoiceCreateForm, ServiceCreateForm, AppointmentCreateForm, PatientAppointmentForm
@@ -409,32 +408,38 @@ class ExpenseListView(LoginRequiredMixin, ListView):
 
 @login_required
 def export_contacts(request):
+    if not request.user.social_auth.filter(provider='google-oauth2'):
+        return redirect('social:begin', 'google-oauth2')
     social = request.user.social_auth.get(provider='google-oauth2')
 
+    if social.access_token_expired():
+        social.refresh_token(load_strategy())
+
     service = build('people', 'v1', credentials=Credentials(social))
-    people = service.people()
-    temp_people = people.connections().list(resourceName='people/me', personFields='names').execute()
-
-    temp_page_token = temp_people.get("nextPageToken")
-    connection_list = temp_people["connections"]
-
-    while temp_page_token:
-        temp_people = people.connections().list(resourceName='people/me', pageToken=temp_page_token,
-                                                personFields='names').execute()
-        connection_list += temp_people["connections"]
-        temp_page_token = temp_people.get("nextPageToken")
+    people = service.people().connections().list(resourceName='people/me', personFields='names').execute()
 
     existing_patient_contact = []
 
-    for val in connection_list:
-        if val.get('names'):
-            for name in val.get('names'):
-                if name.get("honorificPrefix"):
-                    existing_patient_contact.append(name.get("honorificPrefix"))
+    if people:
+        next_page_token = people.get("nextPageToken")
+        connections_list = people.get("connections")
+
+        while next_page_token:
+            people = service.people().connections().list(resourceName='people/me', pageToken=next_page_token,
+                                                         personFields='names').execute()
+            if people.get("connections"):
+                connections_list += people.get("connections")
+            next_page_token = people.get("nextPageToken")
+
+        for val in connections_list:
+            if val.get('names'):
+                for name in val.get('names'):
+                    if name.get("honorificPrefix"):
+                        existing_patient_contact.append(name.get("honorificPrefix"))
 
     for patient in Patient.objects.all():
         if str(patient.patient_id) not in existing_patient_contact:
-            people.createContact(
+            service.people().createContact(
                 body={
                     "names": [
                         {"displayName": patient.name, "givenName": patient.name,
