@@ -63,6 +63,8 @@
         {% if user.is_superuser %}
             <li><a href="{% url 'export-all-data' %}" class="mega-menu" title="Export All Data"><i
                     class="zmdi zmdi-cloud-download"></i></a></li>
+            <li><a href="{% url 'export-daily-report' %}" class="mega-menu" title="Export Daily Report"><i
+                    class="zmdi zmdi-archive"></i></a></li>
         {% endif %}
         <li><a href="javascript:void(0);" class="js-right-sidebar" title="Setting"><i
                 class="zmdi zmdi-settings zmdi-hc-spin"></i></a></li>

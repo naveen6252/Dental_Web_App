@@ -12,8 +12,7 @@
                             <div class="row">
                                 <div class="col-sm-4">
                                     <h5>
-                                        <a href="{% url 'patient-registration-view-slip' object.id %}" title="Get Slip">Patient
-                                            ID: {{ object.patient_id }}</a>
+                                        Patient ID: {{ object.patient_id }}
                                     </h5>
                                     <h5 class="price mt-0">Current Due Amount:
                                         {% if object.due_amount > 0 %}
@@ -24,8 +23,7 @@
                                     </h5>
                                 </div>
                                 <div class="col-sm-4">
-
-                                    <button class="btn btn-info" onclick="printDiv('invoice_print')">
+                                    <button class="btn btn-info" onclick="printInvoice()" title="Print Slip">
                                         <i class="zmdi zmdi-print"></i>
                                     </button>
 
@@ -56,7 +54,8 @@
                                     </div>
                                     <div class="col-md-7 col-lg-7 col-sm-12">
                                         <h3 class="product-title mb-0">{{ object.name }}</h3>
-                                        <h5><abbr title="Phone">P:</abbr> {{ object.mobile }}</h5>
+                                        <h5><abbr title="Phone1">P:</abbr> {{ object.mobile1 }}</h5>
+                                        <h5><abbr title="Phone2">P:</abbr> {{ object.mobile2 }}</h5>
                                         <h5>Age: {{ object.age }}</h5>
                                         <h5>Address: {{ object.address }}</h5>
                                         <h5>Register Date: {{ object.register_date }}</h5>
@@ -158,50 +157,38 @@
         </div>
     </div>
     <script>
-        function printDiv(divName) {
-            var printContents = '<div class="body" id="invoice_print">\n' +
+        function printInvoice() {
+            var printContents = '<div class="body"\n' +
+                '                     style="width: 640px; height: 200px; position: absolute; top:0;\tbottom: 0;\tleft: 0; right: 0; margin: auto;">\n' +
                 '                    <div class="row">\n' +
-                '                        <div class="col-md-2 col-sm-2">\n' +
-                '                            <strong>Name</strong>\n' +
+                '                        <div class="col-md-2 col-sm-2 justify-content-center align-self-center"><strong>Name</strong>\n' +
                 '                        </div>\n' +
-                '                        <div class="col-md-10 col-sm-10">\n' +
-                '                            : {{ object.name }}\n' +
-                '                        </div>\n' +
+                '                        <div class="col-md-1 col-sm-1 justify-content-center align-self-center">:</div>\n' +
+                '                        <div class="col-md-9 col-sm-9">{{ object.name }}</div>\n' +
                 '                    </div>\n' +
                 '                    <div class="row">\n' +
-                '                        <div class="col-md-2 col-sm-2">\n' +
-                '                            <strong>Age/Sex</strong>\n' +
-                '                        </div>\n' +
-                '                        <div class="col-md-10 col-sm-10">\n' +
-                '                            : {{ object.age }}/{{ object.get_sex_display }}\n' +
-                '                        </div>\n' +
+                '                        <div class="col-md-2 col-sm-2"><strong>Age/Sex</strong></div>\n' +
+                '                        <div class="col-md-1 col-sm-1">:</div>\n' +
+                '                        <div class="col-md-9 col-sm-9">{{ object.age }}/{{ object.get_sex_display }}</div>\n' +
                 '                    </div>\n' +
                 '                    <div class="row">\n' +
-                '                        <div class="col-md-2 col-sm-2">\n' +
-                '                            <strong>Address</strong>\n' +
+                '                        <div class="col-md-2 col-sm-2 justify-content-center align-self-center"><strong>Address</strong>\n' +
                 '                        </div>\n' +
-                '                        <div class="col-md-10 col-sm-10">\n' +
-                '                            : {{ object.address}}\n' +
-                '                        </div>\n' +
+                '                        <div class="col-md-1 col-sm-1 justify-content-center align-self-center">:</div>\n' +
+                '                        <div class="col-md-9 col-sm-9">{{ object.address }}</div>\n' +
                 '                    </div>\n' +
                 '                    <div class="row">\n' +
-                '                        <div class="col-md-2 col-sm-2">\n' +
-                '                            <strong>Mobile No</strong>\n' +
-                '                        </div>\n' +
-                '                        <div class="col-md-10 col-sm-10">\n' +
-                '                            : {{ object.mobile }}\n' +
-                '                        </div>\n' +
+                '                        <div class="col-md-2 col-sm-2"><strong>Mobile No</strong></div>\n' +
+                '                        <div class="col-md-1 col-sm-1">:</div>\n' +
+                '                        <div class="col-md-9 col-sm-9">{{ object.mobile1 }}</div>\n' +
                 '                    </div>\n' +
                 '                    <div class="row">\n' +
-                '                        <div class="col-md-2 col-sm-2">\n' +
-                '                            <strong>Patient ID</strong>\n' +
-                '                        </div>\n' +
-                '                        <div class="col-md-10 col-sm-10">\n' +
-                '                            : {{ object.patient_id }}\n' +
-                '                        </div>\n' +
+                '                        <div class="col-md-2 col-sm-2"><strong>Patient ID</strong></div>\n' +
+                '                        <div class="col-md-1 col-sm-1">:</div>\n' +
+                '                        <div class="col-md-9 col-sm-9">{{ object.patient_id }}</div>\n' +
                 '                    </div>\n' +
                 '                </div>';
-            var originalContents = document.body.innerHTML;
+            let originalContents = document.body.innerHTML;
 
             document.body.innerHTML = printContents;
 

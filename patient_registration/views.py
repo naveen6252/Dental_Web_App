@@ -96,7 +96,7 @@ class PatientDetailView(LoginRequiredMixin, DetailView):
 
 class PatientCreateView(LoginRequiredMixin, CreateView):
     model = Patient
-    fields = ['name', 'image', 'mobile', 'sex', 'birth_date', 'address']
+    fields = ['name', 'image', 'mobile1', 'mobile2', 'sex', 'birth_date', 'address']
 
     def form_valid(self, form):
         number = Patient.objects.filter(register_date__date=timezone.now().date()).count() + 1
@@ -322,16 +322,6 @@ class InvoiceDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class InvoiceSlipView(LoginRequiredMixin, DetailView):
-    model = Patient
-    template_name = 'patient_registration/invoice_slip.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(InvoiceSlipView, self).get_context_data(**kwargs)
-        context['title'] = 'Invoice'
-        return context
-
-
 @login_required
 def export_data(request):
     response = HttpResponse(content_type='text/csv')
@@ -339,29 +329,69 @@ def export_data(request):
         '%Y%m%d_%H%M%S') + '.csv"'
     writer = csv.writer(response)
 
-    writer.writerow(['Patient_ID', 'Patient Name', 'Mobile', 'Age', 'Sex', 'Address', 'Registered Date', 'Doctor Name',
-                     'Invoice ID', 'Invoice Date', 'Deposit', 'Invoice Note', 'Service ID', 'Treatment', 'Tooth',
-                     'Treatment Date', 'Laboratory', 'Treatment Amount', 'Treatment Description'])
+    writer.writerow(['Patient_ID', 'Patient Name', 'Mobile1', 'Mobile2', 'Age', 'Sex', 'Address', 'Registered Date',
+                     'Doctor Name', 'Invoice ID', 'Invoice Date', 'Deposit', 'Invoice Note', 'Service ID', 'Treatment',
+                     'Tooth', 'Treatment Date', 'Laboratory', 'Treatment Amount', 'Treatment Description'])
 
     services = Service.objects.all()
     for service in services:
         invoice = service.invoice
         patient = invoice.patient
         doctor = invoice.doctor
-        row = [patient.patient_id, patient.name, patient.mobile, patient.age, patient.sex, patient.address,
-               patient.register_date, doctor.name, invoice.id, invoice.invoice_date, invoice.deposit, invoice.note,
-               service.id, service.treatment.treatment, service.tooth, service.service_date, service.laboratory_name,
-               service.amount, service.description]
+        row = [patient.patient_id, patient.name, patient.mobile1, patient.mobile2, patient.age, patient.sex,
+               patient.address, patient.register_date, doctor.name, invoice.id, invoice.invoice_date, invoice.deposit,
+               invoice.note, service.id, service.treatment.treatment, service.tooth, service.service_date,
+               service.laboratory_name, service.amount, service.description]
         writer.writerow(row)
 
     invoices = Invoice.objects.filter(service__isnull=True)
     for invoice in invoices:
         patient = invoice.patient
         doctor = invoice.doctor
-        row = [patient.patient_id, patient.name, patient.mobile, patient.age, patient.sex, patient.address,
-               patient.register_date, doctor.name, invoice.id, invoice.invoice_date, invoice.deposit, invoice.note, '',
-               '', '', '', '', '', '']
+        row = [patient.patient_id, patient.name, patient.mobile1, patient.mobile2, patient.age, patient.sex,
+               patient.address, patient.register_date, doctor.name, invoice.id, invoice.invoice_date, invoice.deposit,
+               invoice.note, '', '', '', '', '', '', '']
         writer.writerow(row)
+    return response
+
+
+@login_required
+def daily_report(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="Harbor_Daily_Report_' + timezone.now().astimezone().strftime(
+        '%Y%m%d_%H%M%S') + '.csv"'
+    writer = csv.writer(response)
+
+    writer.writerow(['Patient_ID', 'Patient Name', 'Mobile1', 'Mobile2', 'Age', 'Sex', 'Address', 'Registered Date',
+                     'Doctor Name', 'Invoice ID', 'Invoice Date', 'Deposit', 'Invoice Note', 'Service ID', 'Treatment',
+                     'Tooth', 'Treatment Date', 'Laboratory', 'Treatment Amount', 'Treatment Description'])
+
+    today_services = Service.objects.filter(service_date__gte=timezone.now().date())
+    for service in today_services:
+        invoice = service.invoice
+        patient = invoice.patient
+        doctor = invoice.doctor
+        row = [patient.patient_id, patient.name, patient.mobile1, patient.mobile2, patient.age, patient.sex,
+               patient.address, patient.register_date, doctor.name, invoice.id, invoice.invoice_date, invoice.deposit,
+               invoice.note, service.id, service.treatment.treatment, service.tooth, service.service_date,
+               service.laboratory_name, service.amount, service.description]
+        writer.writerow(row)
+
+    today_invoices = Invoice.objects.filter(service__isnull=True, invoice_date__gte=timezone.now().date())
+    for invoice in today_invoices:
+        patient = invoice.patient
+        doctor = invoice.doctor
+        row = [patient.patient_id, patient.name, patient.mobile1, patient.mobile2, patient.age, patient.sex,
+               patient.address, patient.register_date, doctor.name, invoice.id, invoice.invoice_date, invoice.deposit,
+               invoice.note, '', '', '', '', '', '', '']
+        writer.writerow(row)
+
+    today_registered_patients = Patient.objects.filter(register_date=timezone.now().date())
+    for patient in today_registered_patients:
+        row = [patient.patient_id, patient.name, patient.mobile1, patient.mobile2, patient.age, patient.sex,
+               patient.address, patient.register_date, '', '', '', '', '', '', '', '', '', '', '', '']
+        writer.writerow(row)
+
     return response
 
 

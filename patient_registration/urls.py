@@ -3,7 +3,7 @@ from . import views
 from .views import PatientCreateView, AppointmentCreateView, PatientListView, PatientDeleteView, PatientDetailView, \
     PatientUpdateView, ServiceCreateView, DoctorCreateView, DoctorListView, DoctorDeleteView, DoctorUpdateView, \
     InvoiceCreateView, TreatmentCreateView, ExpenseListView, ExpenseUpdateView, \
-    AppointmentUpdateView, InvoiceDetailView, InvoiceSlipView, AppointmentDeleteView, ExpenseCreateView
+    AppointmentUpdateView, InvoiceDetailView, AppointmentDeleteView, ExpenseCreateView
 
 urlpatterns = [
     path('dashboard/', views.home, name='patient-registration-dashboard'),
@@ -15,7 +15,6 @@ urlpatterns = [
     path('patient/<int:pk>/delete/', PatientDeleteView.as_view(), name='patient-registration-delete-patient'),
     path('patient/<int:pk>/update/', PatientUpdateView.as_view(), name='patient-registration-update-patient'),
     path('patient/<int:pk>/', PatientDetailView.as_view(), name='patient-registration-view-patient'),
-    path('patient/<int:pk>/slip/', InvoiceSlipView.as_view(), name='patient-registration-view-slip'),
     path('doctor/<int:pk>/delete/', DoctorDeleteView.as_view(), name='patient-registration-delete-doctor'),
     path('doctor/<int:pk>/update/', DoctorUpdateView.as_view(), name='patient-registration-update-doctor'),
     path('invoice/<int:p_id>/new/', InvoiceCreateView.as_view(), name='patient-registration-add-invoice'),
@@ -29,6 +28,7 @@ urlpatterns = [
     path('appointment/doctor/<int:doc_id>/', views.appointments, name='patient-registration-view-appointment'),
     path('', views.doctor_select, name='patient-registration-select-doctor'),
     path('data/export/all', views.export_data, name='export-all-data'),
+    path('data/export/today', views.daily_report, name='export-daily-report'),
     path('appointment/<int:pk>/delete/', AppointmentDeleteView.as_view(),
          name='patient-registration-delete-appointment'),
     path('patient/Birth-Day/', views.birth_days, name='patient-registration-view-birth-days'),

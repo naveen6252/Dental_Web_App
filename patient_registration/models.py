@@ -31,9 +31,10 @@ class Patient(models.Model):
     phone_regex = RegexValidator(regex=r'^\+?1?\d{9,12}$',
                                  message="Phone number must be entered in the format: '+919999999'")
     patient_id = models.IntegerField(unique=True)
-    image = models.ImageField(default='default.jpg', upload_to='profile_pics')
+    image = models.ImageField(default='default.jpg', upload_to='profile_pics', blank=True)
     name = models.CharField(max_length=50)
-    mobile = models.CharField(max_length=12, validators=[phone_regex])
+    mobile1 = models.CharField(max_length=12, validators=[phone_regex])
+    mobile2 = models.CharField(max_length=12, validators=[phone_regex], blank=True)
     sex = models.IntegerField(choices=gender_choices)
     address = models.TextField()
     birth_date = models.DateField()
