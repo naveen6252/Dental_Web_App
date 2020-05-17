@@ -1,5 +1,7 @@
 {% extends "patient_registration/base.html" %}
 {% load static %}
+{% load mathfilters %}
+{% load humanize %}
 {% block content %}
     <div class="container-fluid">
         <div class="row clearfix">
@@ -7,8 +9,8 @@
                 <div class="card widget_2 big_icon zmdi-account">
                     <div class="body">
                         <h6>Total Patients</h6>
-                        <h2>200</h2>
-                        <small>20 new registered in this month</small>
+                        <h2>{{ total_patients }}</h2>
+                        <small>{{ mtd_patients }} new registered in this month</small>
                         <div class="progress">
                             <div class="progress-bar l-amber" role="progressbar" style="width: 45%;"></div>
                         </div>
@@ -19,11 +21,17 @@
                 <div class="card widget_2 big_icon sales">
                     <div class="body">
                         <h6>MTD Sales</h6>
-                        <h2>&#x20b9; 23500</h2>
-                        <small>6% higher than last month</small>
+                        <h2>&#x20b9; {{ mtd_sales }}</h2>
+                        {% if mom_growth > 0 %}
+                            <small>{{ mom_growth }}% higher than last month</small>
+                        {% else %}
+                            <small>{{ mom_growth|abs }}% lower than last month</small>
+                        {% endif %}
                         <div class="progress">
-                            <div class="progress-bar l-blue" role="progressbar" aria-valuenow="38" aria-valuemin="0"
-                                 aria-valuemax="100" style="width: 38%;"></div>
+                            <div class="progress-bar l-blue" role="progressbar"
+                                 aria-valuenow="{{ mom_growth|floatformat|abs }}"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100" style="width: {{ mom_growth|floatformat|abs }}%;"></div>
                         </div>
                     </div>
                 </div>
@@ -32,11 +40,17 @@
                 <div class="card widget_2 big_icon sales">
                     <div class="body">
                         <h6>MTD Expenses</h6>
-                        <h2>&#x20b9; 12500</h2>
-                        <small>8% lower than last month</small>
+                        <h2>&#x20b9; {{ mtd_expenses }}</h2>
+                        {% if expense_growth > 0 %}
+                            <small>{{ expense_growth }}% higher than last month</small>
+                        {% else %}
+                            <small>{{ expense_growth|abs }}% lower than last month</small>
+                        {% endif %}
                         <div class="progress">
-                            <div class="progress-bar l-pink" role="progressbar" aria-valuenow="50" aria-valuemin="0"
-                                 aria-valuemax="100" style="width: 38%;"></div>
+                            <div class="progress-bar l-pink" role="progressbar"
+                                 aria-valuenow="{{ expense_growth|floatformat|abs }}"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100" style="width: {{ expense_growth|floatformat|abs }}%;"></div>
                         </div>
                     </div>
                 </div>
@@ -45,11 +59,12 @@
                 <div class="card widget_2 big_icon email">
                     <div class="body">
                         <h6>Appointment</h6>
-                        <h2>39</h2>
-                        <small>60% Appointment Completed</small>
+                        <h2>{{ total_appointments }}</h2>
+                        <small>{{ completed_appointments }}% Appointment Completed</small>
                         <div class="progress">
-                            <div class="progress-bar l-purple" role="progressbar" aria-valuenow="60" aria-valuemin="0"
-                                 aria-valuemax="100" style="width: 60%;"></div>
+                            <div class="progress-bar l-purple" role="progressbar"
+                                 aria-valuenow="{{ completed_appointments|floatformat }}" aria-valuemin="0"
+                                 aria-valuemax="100" style="width: {{ completed_appointments|floatformat }}%;"></div>
                         </div>
                     </div>
                 </div>
@@ -67,7 +82,7 @@
                                 <div class="state_w1 mb-1 mt-1">
                                     <div class="d-flex justify-content-between text-green">
                                         <div>
-                                            <h5>&#x20b9;12,50,600</h5>
+                                            <h5>&#x20b9;{{ revenue|intcomma }}</h5>
                                             <span><i class="zmdi zmdi-balance"></i> Revenue</span>
                                         </div>
                                         <div class="sparkline" data-type="bar" data-width="97%" data-height="55px"
@@ -81,7 +96,7 @@
                                 <div class="state_w1 mb-1 mt-1">
                                     <div class="d-flex justify-content-between text-danger">
                                         <div>
-                                            <h5>&#x20b9;25,600</h5>
+                                            <h5>&#x20b9;{{ due|intcomma }}</h5>
                                             <span><i class="zmdi zmdi-turning-sign"></i> Due Amount</span>
                                         </div>
                                         <div class="sparkline" data-type="bar" data-width="97%" data-height="55px"
@@ -95,7 +110,7 @@
                                 <div class="state_w1 mb-1 mt-1">
                                     <div class="d-flex justify-content-between">
                                         <div>
-                                            <h5>2,055</h5>
+                                            <h5>{{ invoices|intcomma }}</h5>
                                             <span><i class="zmdi zmdi-print"></i> Invoices</span>
                                         </div>
                                         <div class="sparkline" data-type="bar" data-width="97%" data-height="55px"
@@ -167,5 +182,12 @@
 {% endblock initial_script %}
 
 {% block final_script %}
+    <script>
+        let mom_chart = {{ mom_chart|safe }};
+        let treatment_chart = {{ treatment_chart|safe }};
+        let appointment_by_doctor = {{ appointment_by_doctor|safe }};
+        let expense_amount = {{ expense_amount|safe }};
+        let expense_trend = {{ expense_trend|safe }};
+    </script>
     <script src="{% static 'patient_registration/js/pages/index.js' %}"></script>
 {% endblock %}

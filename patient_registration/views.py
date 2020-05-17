@@ -5,12 +5,12 @@ from django.http import HttpResponse
 from django.urls import reverse
 from django.db.models import Sum, Count
 from django.db.models.functions import TruncMonth
-from .models import Patient, Doctor, Appointment, Service, Invoice, Treatment, Expense
+from .models import Patient, Doctor, Appointment, Service, Invoice, Treatment, Expense, ExpenseType
 from datetime import timedelta
 from django.utils import timezone
+from dateutil.relativedelta import relativedelta
 from googleapiclient.discovery import build
 from .social_google_credentials import Credentials
-from google.auth.exceptions import RefreshError
 from social_django.utils import load_strategy
 import json
 import csv
@@ -35,29 +35,204 @@ def home(request):
     curr_month_patients = Patient.objects.filter(register_date__gte=month_first_date, register_date__lte=today).count()
     mtd_sales = Invoice.objects.filter(
         invoice_date__gte=month_first_date, invoice_date__lte=today).aggregate(Sum('deposit'))['deposit__sum']
+    mtd_sales = mtd_sales if mtd_sales else 0
     last_month_sale = Invoice.objects.filter(
         invoice_date__gte=last_month_first_date, invoice_date__lte=last_month_last_date).aggregate(
         Sum('deposit'))['deposit__sum']
+    last_month_sale = last_month_sale if last_month_sale else 0
+    mom_growth = round(((mtd_sales - last_month_sale) / last_month_sale) * 100, 1) if last_month_sale > 0 else 100
+
+    mtd_expenses = Expense.objects.filter(
+        date__gte=month_first_date, date__lte=today).aggregate(Sum('amount'))['amount__sum']
+    mtd_expenses = mtd_expenses if mtd_expenses else 0
+    last_month_expenses = Expense.objects.filter(date__gte=last_month_first_date,
+                                                 date__lte=last_month_last_date).aggregate(Sum('amount'))['amount__sum']
+    last_month_expenses = last_month_expenses if last_month_expenses else 0
+    expense_growth = round(((mtd_expenses - last_month_expenses) / last_month_expenses) * 100,
+                           1) if last_month_expenses > 0 else 100
 
     total_appointments = Appointment.objects.count()
-    completed_appointments = Appointment.objects.filter(date__lte=timezone.now())
-    revenue = Invoice.objects.aggregate(Sum('deposit'))['deposit__sum']
-    service_amount = Service.objects.aggregate(Sum('amount'))['amount__sum']
-    due = service_amount - revenue
+    completed_appointments = Appointment.objects.filter(date__lte=timezone.now()).count()
+    appointment_percent = int((completed_appointments / total_appointments) * 100) if total_appointments else 100
+
+    revenue = Service.objects.aggregate(Sum('amount'))['amount__sum']
+    revenue = revenue if revenue else 0
+    deposit_amount = Invoice.objects.aggregate(Sum('deposit'))['deposit__sum']
+    due = revenue - deposit_amount
     total_invoices = Invoice.objects.count()
 
-    mom_deposit = Invoice.objects.annotate(month=TruncMonth('invoice_date')).values('month').annotate(
-        deposit=Sum('deposit')).values('month', 'deposit')
+    mom_chart = {
+        'bindto': '#mom-chart',
+        'data': {
+            'columns': [
+                ['Service Amount'],
+                ['Deposit Amount']
+            ],
+            'type': 'line',
+            'groups': [
+                ['Service Amount', 'Deposit Amount']
+            ],
+            'colors': {
+                'Service Amount': "#3866a6",
+                'Deposit Amount': "#b93d30"
+            },
+        },
+        'axis': {
+            'x': {
+                'type': 'category',
+                'categories': []
+            },
+        },
+        'legend': {
+            'show': True,
+        },
+        'padding': {
+            'bottom': 0,
+            'top': 0,
+        },
+        'grid': {
+            'x': {
+                'show': True
+            },
+            'y': {
+                'show': True
+            }
+        },
+    }
+    expense_trend = {
+        'bindto': '#expense-trend',
+        'data': {
+            'columns': [
+                ['Expense Amount']
+            ],
+            'type': 'line',
+            'colors': {
+                'Expense Amount': "#3866a6"
+            },
+        },
+        'axis': {
+            'x': {
+                'type': 'category',
+                'categories': []
+            },
+        },
+        'bar': {
+            'width': 60,
+        },
+        'legend': {
+            'show': True,
+        },
+        'padding': {
+            'bottom': 0,
+            'top': 0,
+        },
+        'grid': {
+            'x': {
+                'show': True
+            },
+            'y': {
+                'show': True
+            }
+        },
+    }
+    total_last_months = 11
+    while total_last_months >= 0:
+        curr_date = timezone.now() - relativedelta(months=total_last_months)
+        curr_date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        curr_month_service = Service.objects.filter(service_date__month=curr_date.month,
+                                                    service_date__year=curr_date.year).aggregate(
+            Sum('amount'))['amount__sum']
+        curr_month_service = curr_month_service if curr_month_service else 0
+        curr_month_deposit = \
+            Invoice.objects.filter(invoice_date__month=curr_date.month, invoice_date__year=curr_date.year).aggregate(
+                Sum('deposit'))['deposit__sum']
+        curr_month_deposit = curr_month_deposit if curr_month_deposit else 0
+        curr_month_expense = Expense.objects.filter(date__month=curr_date.month, date__year=curr_date.year).aggregate(
+            Sum('amount'))['amount__sum']
 
-    mom_amount = Service.objects.annotate(month=TruncMonth('service_date')).values('month').annotate(
-        amount=Sum('amount')).values('month', 'amount')
+        month_year = curr_date.strftime('%b-%Y')
+        mom_chart['data']['columns'][0].append(curr_month_service)
+        mom_chart['data']['columns'][1].append(curr_month_deposit)
+        mom_chart['axis']['x']['categories'].append(month_year)
 
-    deposit_by_doctor = Invoice.objects.values('service__treatment').annotate(deposit=Sum('deposit'))
-    amount_by_doctor = Service.objects.values('treatment').annotate(amount=Sum('amount'))
+        expense_trend['data']['columns'][0].append(curr_month_expense)
+        expense_trend['axis']['x']['categories'].append(curr_date.strftime('%b-%y'))
 
-    appointment_by_doctor = Appointment.objects.values('doctor').annotate(appointment=Count('patient'))
+        total_last_months -= 1
 
-    return render(request, 'patient_registration/dashboard.html', {'title': 'Dashboard'})
+    treatment_chart = {
+        'bindto': '#treatment-chart',
+        'data': {
+            'columns': [
+                ['revenue'],
+                ['due']
+            ],
+            'types': {
+                'due': "line",
+                'revenue': 'bar'
+            },
+            'groups': [
+                ['revenue']
+            ],
+            'colors': {
+                'revenue': '#7DCBD2',
+                'due': '#140D5F',
+            },
+        },
+        'axis': {
+            'x': {
+                'type': 'category',
+                'categories': []
+            },
+        },
+        'bar': {
+            'width': '50%',
+        },
+        'legend': {
+            'show': True,
+        },
+        'padding': {
+            'bottom': 0,
+            'top': 0
+        },
+    }
+    for treatment in Treatment.objects.all():
+        treatment_chart['axis']['x']['categories'].append(treatment.treatment)
+        treatment_revenue = Service.objects.filter(treatment=treatment).aggregate(Sum('amount'))['amount__sum']
+        treatment_revenue = treatment_revenue if treatment_revenue else 0
+        treatment_deposit = Invoice.objects.filter(service__treatment=treatment).aggregate(Sum('deposit'))[
+            'deposit__sum']
+        treatment_deposit = treatment_deposit if treatment_deposit else 0
+        treatment_due = treatment_revenue - treatment_deposit
+        treatment_chart['data']['columns'][0].append(treatment_revenue)
+        treatment_chart['data']['columns'][1].append(treatment_due)
+
+    appointment_by_doctor = [[doctor.name, doctor.appointment_set.count()] for doctor in Doctor.objects.all()]
+
+    expense_amount = [[expense.type, expense.expense_set.aggregate(Sum('amount'))['amount__sum']] for expense in
+                      ExpenseType.objects.all()]
+
+    context = {
+        'title': 'Dashboard',
+        'total_patients': total_patients,
+        'mtd_patients': curr_month_patients,
+        'mtd_sales': mtd_sales,
+        'mom_growth': mom_growth,
+        'mtd_expenses': mtd_expenses,
+        'expense_growth': expense_growth,
+        'total_appointments': total_appointments,
+        'completed_appointments': appointment_percent,
+        'revenue': revenue,
+        'due': due,
+        'invoices': total_invoices,
+        'mom_chart': json.dumps(mom_chart),
+        'treatment_chart': json.dumps(treatment_chart),
+        'appointment_by_doctor': json.dumps(appointment_by_doctor),
+        'expense_amount': json.dumps(expense_amount),
+        'expense_trend': json.dumps(expense_trend)
+    }
+
+    return render(request, 'patient_registration/dashboard.html', context)
 
 
 class PatientListView(LoginRequiredMixin, ListView):
@@ -358,7 +533,8 @@ def export_data(request):
 @login_required
 def daily_report(request):
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="Harbor_Daily_Report_' + timezone.now().astimezone().strftime(
+    response[
+        'Content-Disposition'] = 'attachment; filename="Harbor_Daily_Report_' + timezone.now().astimezone().strftime(
         '%Y%m%d_%H%M%S') + '.csv"'
     writer = csv.writer(response)
 
