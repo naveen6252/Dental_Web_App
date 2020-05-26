@@ -1,10 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponse
 from django.urls import reverse
-from django.db.models import Sum, Count
-from django.db.models.functions import TruncMonth
+from django.db.models import Sum
 from .models import Patient, Doctor, Appointment, Service, Invoice, Treatment, Expense, ExpenseType
 from datetime import timedelta
 from django.utils import timezone
@@ -22,6 +21,12 @@ from django.views.generic import (
     DeleteView,
     UpdateView
 )
+from threading import Thread
+import time
+
+TOTAL_CONTACTS = 0
+SYNCED_CONTACTS = 0
+CONTACT_THREAD = None
 
 
 @login_required
@@ -138,7 +143,6 @@ def home(request):
     total_last_months = 11
     while total_last_months >= 0:
         curr_date = timezone.now() - relativedelta(months=total_last_months)
-        curr_date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
         curr_month_service = Service.objects.filter(service_date__month=curr_date.month,
                                                     service_date__year=curr_date.year).aggregate(
             Sum('amount'))['amount__sum']
@@ -245,7 +249,7 @@ class PatientListView(LoginRequiredMixin, ListView):
         return context
 
 
-class PatientDeleteView(LoginRequiredMixin, DeleteView):
+class PatientDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Patient
 
     def get_success_url(self):
@@ -255,6 +259,9 @@ class PatientDeleteView(LoginRequiredMixin, DeleteView):
         context = super(PatientDeleteView, self).get_context_data(**kwargs)
         context['title'] = 'Patient Delete'
         return context
+
+    def test_func(self):
+        return self.request.user.is_superuser
 
 
 class PatientDetailView(LoginRequiredMixin, DetailView):
@@ -298,7 +305,7 @@ class TreatmentCreateView(LoginRequiredMixin, CreateView):
 
 class PatientUpdateView(LoginRequiredMixin, UpdateView):
     model = Patient
-    fields = ['patient_id', 'name', 'image', 'mobile', 'sex', 'birth_date', 'address']
+    fields = ['patient_id', 'name', 'image', 'mobile1', 'mobile2', 'sex', 'birth_date', 'address']
 
     def get_context_data(self, **kwargs):
         context = super(PatientUpdateView, self).get_context_data(**kwargs)
@@ -373,7 +380,7 @@ class DoctorCreateView(LoginRequiredMixin, CreateView):
         return context
 
 
-class DoctorUpdateView(LoginRequiredMixin, UpdateView):
+class DoctorUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Doctor
     fields = ['name', 'contact', 'designation', 'logo', 'address']
 
@@ -381,6 +388,9 @@ class DoctorUpdateView(LoginRequiredMixin, UpdateView):
         context = super(DoctorUpdateView, self).get_context_data(**kwargs)
         context['title'] = 'Doctor'
         return context
+
+    def test_func(self):
+        return self.request.user.is_superuser
 
 
 class DoctorListView(LoginRequiredMixin, ListView):
@@ -392,7 +402,7 @@ class DoctorListView(LoginRequiredMixin, ListView):
         return context
 
 
-class DoctorDeleteView(LoginRequiredMixin, DeleteView):
+class DoctorDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Doctor
 
     def get_success_url(self):
@@ -402,6 +412,9 @@ class DoctorDeleteView(LoginRequiredMixin, DeleteView):
         context = super(DoctorDeleteView, self).get_context_data(**kwargs)
         context['title'] = 'Doctor Delete'
         return context
+
+    def test_func(self):
+        return self.request.user.is_superuser
 
 
 class AppointmentCreateView(LoginRequiredMixin, CreateView):
@@ -429,7 +442,7 @@ class AppointmentUpdateView(LoginRequiredMixin, UpdateView):
         return context
 
 
-class AppointmentDeleteView(LoginRequiredMixin, DeleteView):
+class AppointmentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Appointment
 
     def get_success_url(self):
@@ -439,6 +452,9 @@ class AppointmentDeleteView(LoginRequiredMixin, DeleteView):
         context = super(AppointmentDeleteView, self).get_context_data(**kwargs)
         context['title'] = 'Appointment - Delete'
         return context
+
+    def test_func(self):
+        return self.request.user.is_superuser
 
 
 @login_required
@@ -612,16 +628,7 @@ class ExpenseListView(LoginRequiredMixin, ListView):
         return context
 
 
-@login_required
-def export_contacts(request):
-    if not request.user.social_auth.filter(provider='google-oauth2'):
-        return redirect('social:begin', 'google-oauth2')
-    social = request.user.social_auth.get(provider='google-oauth2')
-
-    if social.access_token_expired():
-        social.refresh_token(load_strategy())
-
-    service = build('people', 'v1', credentials=Credentials(social))
+def export_contacts_async(service):
     people = service.people().connections().list(resourceName='people/me', personFields='names').execute()
 
     existing_patient_contact = []
@@ -643,6 +650,8 @@ def export_contacts(request):
                     if name.get("honorificPrefix"):
                         existing_patient_contact.append(name.get("honorificPrefix"))
 
+    global SYNCED_CONTACTS
+    SYNCED_CONTACTS = 0
     for patient in Patient.objects.all():
         if str(patient.patient_id) not in existing_patient_contact:
             service.people().createContact(
@@ -652,7 +661,7 @@ def export_contacts(request):
                          "honorificPrefix": str(patient.patient_id)}],
                     "phoneNumbers": [
                         {
-                            'value': patient.mobile
+                            'value': patient.mobile1
                         }
                     ],
                     'organizations': [{
@@ -661,6 +670,34 @@ def export_contacts(request):
                     }]
                 }
             ).execute()
+            time.sleep(0.2)
+        SYNCED_CONTACTS = SYNCED_CONTACTS + 1
+    return
+
+
+@login_required
+def export_contacts(request):
+    if not request.user.social_auth.filter(provider='google-oauth2'):
+        return redirect('social:begin', 'google-oauth2')
+    social = request.user.social_auth.get(provider='google-oauth2')
+
+    if social.access_token_expired():
+        social.refresh_token(load_strategy())
+
+    service = build('people', 'v1', credentials=Credentials(social))
+    global CONTACT_THREAD
+    global SYNCED_CONTACTS
+    if not CONTACT_THREAD:
+        CONTACT_THREAD = Thread(target=export_contacts_async, args=(service,), name='ContactThread')
+        CONTACT_THREAD.start()
+
+    if not CONTACT_THREAD.is_alive():
+        CONTACT_THREAD = Thread(target=export_contacts_async, args=(service,), name='ContactThread')
+        CONTACT_THREAD.start()
+
+    global TOTAL_CONTACTS
+    TOTAL_CONTACTS = Patient.objects.count()
 
     return render(request, 'patient_registration/export-contact.html',
-                  {'title': 'Dashboard', 'data': 'Contacts Exported Successfully!'})
+                  {'title': 'Dashboard',
+                   'data': '{0} out of {1} Contacts Exported Successfully!'.format(SYNCED_CONTACTS, TOTAL_CONTACTS)})

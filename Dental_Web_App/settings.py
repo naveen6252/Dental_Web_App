@@ -136,8 +136,6 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-CLIENT_SECRETS_FILE = "credentials.json"
-
 SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {'prompt': 'select_account'}
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '496509076289-u405n5n08ncqbqhr6rfbb5akg3s38lrc.apps.googleusercontent.com'
