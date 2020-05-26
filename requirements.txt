@@ -6,8 +6,7 @@ pytz==2019.3
 sqlparse==0.3.1
 Pillow==7.0.0
 django-heroku==0.3.1
-google-auth-oauthlib
-google-auth-httplib2
+google-api-python-client
 django-mathfilters
 python-dateutil
 social-auth-app-django
